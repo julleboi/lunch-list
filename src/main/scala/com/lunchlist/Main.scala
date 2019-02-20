@@ -1,6 +1,15 @@
 package com.lunchlist
 
+import java.net.URI
+
+import com.lunchlist.restaurant._
+
 object Main {
+  val restaurants: Array[Restaurant] = Array(
+    new FazerRestaurant("A test", new URI("www.google.com")), 
+    new SodexoRestaurant("Another test", new URI("www.google.com"))
+  )
+
   trait Action {
     def apply(options: String = null): Unit
   }
@@ -36,6 +45,18 @@ object Main {
   }
   val count: Action = str => countTo(str)
 
+  // Print each action
+  def printEachFrom(str: String) {
+    val items = str.split(",").map(_.trim())
+    for(item <- items) {
+      println(s"'$item'")
+    }
+  }
+  val printEach: Action = str => printEachFrom(str)
+
+  // Print menus action
+  val printMenus: Action = _ => restaurants.foreach(println)
+
   // Print actions action
   def printAvailableActions() = {
     println("Abvailable actions:")
@@ -61,11 +82,13 @@ object Main {
    * Maps input strings to corresponding actions
    */
   val inputToAction: Map[String, Action] = Map(
-    "time"    -> printTime,
-    "wait"    -> wait100ms,
-    "print"   -> printText,
-    "count"   -> count,
-    "actions" -> actions
+    "time"       -> printTime,
+    "wait"       -> wait100ms,
+    "print"      -> printText,
+    "count"      -> count,
+    "printeach"  -> printEach,
+    "printmenus" -> printMenus,
+    "actions"    -> actions
   ).withDefaultValue(invalid)
 
   /*
