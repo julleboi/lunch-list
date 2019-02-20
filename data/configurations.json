@@ -1,0 +1,8 @@
+{
+  "restaurants": [
+    { "type": "fazer", "name": "A Bloc", "id": "3087" },
+    { "type": "fazer", "name": "Dipoli", "id": "3101" },
+    { "type": "sodexo", "name": "Aalto Tietotekniikantalo", "id": "142" },
+    { "type": "sodexo", "name": "Aalto Valimo", "id": "13918" }
+  ]
+}
