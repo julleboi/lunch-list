@@ -1,0 +1,4 @@
+ThisBuild / scalaVersion := "2.12.7"
+ThisBuild / organization := "com.lunchlist"
+
+libraryDependencies += "com.typesafe.play" %% "play-json" % "2.6.10"
