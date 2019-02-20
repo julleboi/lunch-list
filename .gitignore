@@ -1,10 +1,9 @@
 # Ignore everything in this directory
 *
 # Except these
-!.data
-!.project
-!.src
-!.target
+!data/
+!project/
+!src/
 !.gitignore
-!.build.sbt
-!.README.md
+!build.sbt
+!README.md
