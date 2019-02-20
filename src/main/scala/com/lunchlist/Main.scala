@@ -6,7 +6,9 @@ object Main {
   }
 
   /*
+   * ----------------------------
    * --- START OF ALL ACTIONS ---
+   * ----------------------------
    */
   // Print time action
   val printTime: Action = _ => println(s"Time: ${System.currentTimeMillis()}ms")
@@ -50,10 +52,14 @@ object Main {
   }
   val invalid: Action = _ => terminate
   /*
+   * --------------------------
    * --- END OF ALL ACTIONS ---
+   * --------------------------
    */
 
-  // Maps strings to corresponding actions
+  /*
+   * Maps input strings to corresponding actions
+   */
   val inputToAction: Map[String, Action] = Map(
     "time"    -> printTime,
     "wait"    -> wait100ms,
@@ -62,7 +68,9 @@ object Main {
     "actions" -> actions
   ).withDefaultValue(invalid)
 
-  // Parses  user input and runs the corresponding action
+  /*
+   * Parses  user input and runs the corresponding action
+   */
   def handleArgs(args: Array[String]): Unit = {
     val argsSplit = args.foldLeft(" ")(_ + " " + _).split(" -").tail
     // DEBUG: argsSplit.foreach(arg => println(s"found arg: '$arg'"))
@@ -80,13 +88,16 @@ object Main {
       } else {
         // Give options as parameter for this action
         val actionName = actionSplit.head.toLowerCase()
-        val options = actionSplit.tail.reduceLeft(_ + _)
+        val options = actionSplit.tail.reduceLeft(_ + _) // reduceLeft is sort of unnecessary, 
+                                                         // but makes it fail-safe in case of multiple '='s
         inputToAction(actionName)(options)
       }
     }
   }
 
-  // Main method
+  /*
+   * Main method
+   */
   def main(args: Array[String]): Unit = {
     handleArgs(args);
   }
