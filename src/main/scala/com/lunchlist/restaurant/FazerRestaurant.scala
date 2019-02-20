@@ -1,8 +1,7 @@
 package com.lunchlist.restaurant
 
-import java.net.URI
-
-class FazerRestaurant(name: String, menuUri: URI) extends Restaurant(name, menuUri) {
+class FazerRestaurant(name: String, id: String) extends Restaurant(name, id) {
+  def getURL() = "https://www.fazerfoodco.fi/modules/json/json/Index?costNumber="+this.id+"&language=en"
   def parseMenu() = {
     this.menu = "A Fazer menu"
   }

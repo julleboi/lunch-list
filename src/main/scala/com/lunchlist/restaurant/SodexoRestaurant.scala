@@ -1,8 +1,9 @@
 package com.lunchlist.restaurant
 
-import java.net.URI
+import com.lunchlist.util.Moment.getDate
 
-class SodexoRestaurant(name: String, menuUri: URI) extends Restaurant(name, menuUri) {
+class SodexoRestaurant(name: String, id: String) extends Restaurant(name, id) {
+  def getURL() = "https://www.sodexo.fi/ruokalistat/output/daily_json/"+this.id+"/"+getDate("yyyy/mm/dd")+"/en"
   def parseMenu() = {
     this.menu = "A Sodexu menu"
   }
