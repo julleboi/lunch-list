@@ -2,7 +2,7 @@ package com.lunchlist.io
 
 import io.Source
 
-import com.lunchlist.json.JsonParser.restaurantsToList
+import com.lunchlist.util.JsonParser.restaurantsToList
 
 object Configurations {
   def readFromFile(path: String): String = {
