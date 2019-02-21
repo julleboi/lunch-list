@@ -11,7 +11,7 @@ object JsonParser {
     val json = Json.parse(rawStr)
     val restaurants: ListBuffer[Restaurant] = new ListBuffer()
     val restaurantsObjects = (json \ "restaurants").as[List[Map[String, String]]]
-    for(restaurant <- restaurantsObject){
+    for(restaurant <- restaurantsObjects){
       val rType = restaurant("type")
       val name = restaurant("name")
       val id = restaurant("id")
