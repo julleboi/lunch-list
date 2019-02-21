@@ -15,16 +15,14 @@ object JsonParser {
       val rType = restaurant("type")
       val name = restaurant("name")
       val id = restaurant("id")
-      var r: Restaurant = null
       rType match {
         case "fazer" => 
-          r = new FazerRestaurant(name, id)
+          restaurants += new FazerRestaurant(name, id)
         case "sodexo" => 
-          r = new SodexoRestaurant(name, id)
+          restaurants += new SodexoRestaurant(name, id)
         case unknownType => 
           println(s"Unknown restaurant type '$rType'")
       }
-      restaurants += r
     }
     return restaurants.toList
   }
