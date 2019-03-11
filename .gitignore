@@ -7,3 +7,4 @@
 !.gitignore
 !build.sbt
 !README.md
+!progress_log.txt
