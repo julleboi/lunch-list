@@ -3,8 +3,5 @@ package com.lunchlist.restaurant
 import com.lunchlist.util.Date.getDate
 
 class SodexoRestaurant(name: String, id: String) extends Restaurant(name, id) {
-  def getURL() = "https://www.sodexo.fi/ruokalistat/output/daily_json/"+this.id+"/"+getDate("yyyy/mm/dd")+"/en"
-  def fetchMenu() = {
-    this.menu = "A Sodexu menu"
-  }
+  def getURL() = "https://www.sodexo.fi/ruokalistat/output/daily_json/"+this.id+"/"+getDate("yyyy/MM/dd")+"/en"
 }
