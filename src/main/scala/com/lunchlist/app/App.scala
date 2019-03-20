@@ -1,7 +1,8 @@
 package com.lunchlist.app
 
 import com.lunchlist.restaurant._
-import com.lunchlist.io.Configurations.loadRestaurants
+import com.lunchlist.util.JsonTools.loadRestaurants
+import com.lunchlist.util.JsonTools.loadMenu
 
 object App {
   val restaurants: List[Restaurant] = loadRestaurants()
@@ -15,8 +16,8 @@ object App {
    * --- START OF ALL ACTIONS ---
    * ----------------------------
    */
-  // Print menus action
-  val printMenus: Action = _ => restaurants.foreach(println)
+  // Download menus action
+  val loadMenus: Action = _ => restaurants.foreach(loadMenu)
 
   // Print actions action
   def printAvailableActions() = {
@@ -46,7 +47,7 @@ object App {
    * Maps input strings to corresponding actions
    */
   val inputToAction: Map[String, Action] = Map(
-    "menus"   -> printMenus,
+    "load"   -> loadMenus,
     "actions" -> printActions,
     "usage"   -> printUsage
   ).withDefaultValue(invalid)
