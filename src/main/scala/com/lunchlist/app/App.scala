@@ -8,75 +8,57 @@ object App {
   
   val restaurants: List[Restaurant] = loadRestaurants()
 
-  trait Action {
+  trait Command {
     def apply(options: String = null): Unit
   }
 
-  /*
-   * ----------------------------
-   * --- START OF ALL ACTIONS ---
-   * ----------------------------
-   */
-  // Download menus action
-  val loadMenus: Action = _ => restaurants.foreach(loadMenu)
+  val loadMenus: Command = _ => restaurants.foreach(loadMenu)
 
-  // Print actions action
   def printAvailableActions() = {
     println("Abvailable actions:")
-    println(s"${inputToAction.keys.map("-"+_).reduceLeft(_ + ", " + _)}")
+    println(inputToCommand.keys.map("-"+_).reduceLeft(_ + ", " + _))
   }
-  val printActions: Action = _ => printAvailableActions
+  val printCommands: Command = _ => printAvailableActions
 
-  // Usage action
-  val printUsage: Action = _ => println("Usage: '-noOptions -withOptions=<options for this action> ...'")
+  val printUsage: Command = _ => println("Usage: '-noOptions -withOptions=<options for this command> ...'")
 
-  // Invalid action
   def terminate() = {
-    print("Invalid action, ")
-    printActions()
+    print("Invalid command, ")
+    printCommands()
     println("Terminating.")
     sys.exit(1)
   }
-  val invalid: Action = _ => terminate
-  /*
-   * --------------------------
-   * --- END OF ALL ACTIONS ---
-   * --------------------------
-   */
+  val invalid: Command = _ => terminate
 
-  /*
-   * Maps input strings to corresponding actions
-   */
-  val inputToAction: Map[String, Action] = Map(
-    "load"   -> loadMenus,
-    "actions" -> printActions,
-    "usage"   -> printUsage
+  val inputToCommand: Map[String, Command] = Map(
+    "load"     -> loadMenus,
+    "commands" -> printCommands,
+    "usage"    -> printUsage
   ).withDefaultValue(invalid)
 
   /*
-   * Parses  user input and runs the corresponding action
+   * Parses  user input and runs the corresponding command
    */
   def handleArgs(args: Array[String]): Unit = {
     val argsSplit = args.foldLeft(" ")(_ + " " + _).split(" -").tail
-    // DEBUG: argsSplit.foreach(arg => println(s"found arg: '$arg'"))
     if(argsSplit.isEmpty){
       // No actions were specified to be run
       println("No actions specified.")
       printUsage()
-      printActions()
+      printCommands()
     }
-    for(action <- argsSplit) {
-      val actionSplit = action.split("=")
-      if(actionSplit.length < 2) {
-        // No options for this action, run it as it's
-        val actionName = action.toLowerCase()
-        inputToAction(actionName)()
+    for(command <- argsSplit) {
+      val commandSplit = command.split("=")
+      if(commandSplit.length < 2) {
+        // No options for this command, run it as it's
+        val commandName = command.toLowerCase()
+        inputToCommand(commandName)()
       } else {
-        // Give options as parameter for this action
-        val actionName = actionSplit.head.toLowerCase()
-        val options = actionSplit.tail.reduceLeft(_ + _) // reduceLeft is sort of unnecessary, 
-                                                         // but makes it fail-safe in case of multiple '='s
-        inputToAction(actionName)(options)
+        // Give options as parameter for this command
+        val commandName = commandSplit.head.toLowerCase()
+        val options = commandSplit.tail.reduceLeft(_ + _) // reduceLeft is sort of unnecessary, 
+                                                          // but makes it fail-safe in case of multiple '='s
+        inputToCommand(commandName)(options)
       }
     }
   }
