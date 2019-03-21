@@ -5,6 +5,7 @@ import com.lunchlist.util.JsonTools.loadRestaurants
 import com.lunchlist.util.JsonTools.loadMenu
 
 object App {
+  
   val restaurants: List[Restaurant] = loadRestaurants()
 
   trait Action {

@@ -12,7 +12,7 @@ import com.lunchlist.restaurant.Menu._
 
 object JsonTools {
 
-    def readFromFile(path: String): String = {
+  private def readFromFile(path: String): String = {
     val source = Source.fromFile(path)
     val raw = source.getLines.reduceLeft(_ + "\n" + _)
     return raw
