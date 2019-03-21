@@ -13,7 +13,6 @@ object DateTools {
   def getDatesThisWeek(): List[String] = {
     val dayInMs = TimeUnit.DAYS.toMillis(1)
     val n = dayInMs * Math.max(getDate("u").toInt - 1, 0)
-    def toDate(n: Long) = new Date(n)
     ((time - n) to (time + (6 * (dayInMs)))).map((time: Long) => getDate("yyyy/MM/dd", new Date(time))).toList
   }
 }

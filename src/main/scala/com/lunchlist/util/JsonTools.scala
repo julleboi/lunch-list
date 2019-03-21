@@ -46,7 +46,7 @@ object JsonTools {
 
   private def getRawMenu(restaurant: Restaurant): Option[String] = {
     if(!restaurant.hasMenu()) {
-      val url = restaurant.getURL()
+      val url = restaurant.getURLs()(0)
       val file = Source.fromURL(url)
       val raw = file.mkString
       new PrintWriter(restaurant.getMenuFilePath) {
@@ -78,6 +78,7 @@ object JsonTools {
           }
           menus += new Menu(foodsBuffer.toList)
         }
+        restaurant.setMenus(menus.toList)
       }
       case None => println(s"Wasn't able to fetch menu for restaurant '${restaurant.name}'")
     }
@@ -90,6 +91,7 @@ object JsonTools {
         println(s"Found menu for restaurant '${restaurant.name}'")
         val json = Json.parse(menu)
         val menus: ListBuffer[Menu] = new ListBuffer[Menu]()
+
       }
       case None => println(s"Wasn't able to fetch menu for restaurant '${restaurant.name}'")
     }
