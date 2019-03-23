@@ -7,6 +7,9 @@ import java.io.PrintWriter
 
 import play.api.libs.json._
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.async.Async.{async, await}
+
 import com.lunchlist.restaurant._
 import com.lunchlist.restaurant.Menu._
 
@@ -44,18 +47,33 @@ object JsonTools {
 
   def loadRestaurants() = restaurantsToList(configRaw)
 
+  /*
+  * TODO: Fetch JSONs asynchronously to cut down the loading phase
+  */
   private def getRawMenus(restaurant: Restaurant): Option[String] = {
-    if(!restaurant.hasMenu()) {
+    if(restaurant.hasMenu()) {
+      val file = Source.fromFile(restaurant.getMenuFilePath())
+      val raw = file.mkString
+      return Some(raw)
+    } else {
       val urls = restaurant.getURLs()
-      val raw = urls.map(Source.fromURL(_).mkString).mkString
+      val readFromURL = (url: String) => Source.fromURL(url).mkString
+      val prettify = (rawStr: String) => Json.prettyPrint(Json.parse(rawStr))
+      val raw = {
+        if(urls.length > 1) {
+          val start = """{"menus":["""
+          val mid = (urls.init.map(url => readFromURL(url) + ","):+readFromURL(urls.last)).mkString
+          val end = """]}"""
+          prettify(start + mid + end)
+        } else {
+          val str = urls.map(readFromURL).mkString
+          prettify(str)
+        }
+      }
       new PrintWriter(restaurant.getMenuFilePath) {
         write(raw)
         close
       }
-      return Some(raw)
-    } else {
-      val file = Source.fromFile(restaurant.getMenuFilePath())
-      val raw = file.mkString
       return Some(raw)
     }
     return None
