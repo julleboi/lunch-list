@@ -15,10 +15,11 @@ object DateTools {
   
   def getWeek() = getDate("w")
   
-  def getDatesThisWeek(): List[String] = {
+  def getDatesThisWeek(format: String = "yyyy/MM/dd"): List[String] = {
     val dayInMs = TimeUnit.DAYS.toMillis(1)
     val n = dayInMs * Math.max(getDate("u").toInt - 1, 0)
-    ((time - n) to (time + (6 * (dayInMs)))).map((time: Long) => getDate("yyyy/MM/dd", new Date(time))).toList
+    val start = time - n
+    (start to start + (6 * (dayInMs)) by dayInMs).map((time: Long) => getDate(format, new Date(time))).toList
   }
 
 }

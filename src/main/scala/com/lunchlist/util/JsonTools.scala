@@ -44,11 +44,10 @@ object JsonTools {
 
   def loadRestaurants() = restaurantsToList(configRaw)
 
-  private def getRawMenu(restaurant: Restaurant): Option[String] = {
+  private def getRawMenus(restaurant: Restaurant): Option[String] = {
     if(!restaurant.hasMenu()) {
-      val url = restaurant.getURLs()(0)
-      val file = Source.fromURL(url)
-      val raw = file.mkString
+      val urls = restaurant.getURLs()
+      val raw = urls.map(Source.fromURL(_).mkString).mkString
       new PrintWriter(restaurant.getMenuFilePath) {
         write(raw)
         close
@@ -63,8 +62,8 @@ object JsonTools {
   }
 
   private def loadFazerMenu(restaurant: Restaurant): Unit = {
-    val menuOption = getRawMenu(restaurant)
-    menuOption match {
+    val menusOption = getRawMenus(restaurant)
+    menusOption match {
       case Some(menu) => {
         println(s"Found menu for restaurant '${restaurant.name}'")
         val json = Json.parse(menu)
@@ -85,8 +84,8 @@ object JsonTools {
   }
 
   private def loadSodexoMenu(restaurant: Restaurant): Unit = {
-    val menuOption = getRawMenu(restaurant)
-      menuOption match {
+    val menusOption = getRawMenus(restaurant)
+      menusOption match {
       case Some(menu) => {
         println(s"Found menu for restaurant '${restaurant.name}'")
         val json = Json.parse(menu)
