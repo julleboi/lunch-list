@@ -7,9 +7,6 @@ import java.io.PrintWriter
 
 import play.api.libs.json._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.async.Async.{async, await}
-
 import com.lunchlist.restaurant._
 import com.lunchlist.restaurant.Menu._
 
@@ -63,7 +60,7 @@ object JsonTools {
         if(urls.length > 1) {
           val start = """{"menus":["""
           val mid = (urls.init.map(url => readFromURL(url) + ","):+readFromURL(urls.last)).mkString
-          val end = """]}"""
+          val end = "]}"
           prettify(start + mid + end)
         } else {
           val str = urls.map(readFromURL).mkString
