@@ -130,12 +130,10 @@ object JsonTools {
     }
   }
 
-  def loadMenus(restaurant: Restaurant): Unit = {
-    restaurant match {
-      case fazer: FazerRestaurant =>
-        loadFazerMenus(restaurant)
-      case sodexo: SodexoRestaurant =>
-        loadSodexoMenus(restaurant)
-    }
+  def loadMenus(restaurant: Restaurant): Unit = restaurant match {
+    case fazer: FazerRestaurant =>
+      loadFazerMenus(restaurant)
+    case sodexo: SodexoRestaurant =>
+      loadSodexoMenus(restaurant)
   }
 }
