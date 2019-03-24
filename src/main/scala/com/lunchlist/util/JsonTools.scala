@@ -57,7 +57,7 @@ object JsonTools {
       val urls = restaurant.getURLs()
       val futures: List[Future[String]] = urls.map(url => Future { Source.fromURL(url).mkString })
       val result: String = futures.map(Await.result(_, 3 seconds)).mkString(",")
-      val prettify = (rawStr: String) => Json.prettyPrint(Json.parse(rawStr))
+      def prettify(rawStr: String) = Json.prettyPrint(Json.parse(rawStr))
       val raw = {
         if(urls.length > 1) {
           val start = """{"menus":["""
