@@ -97,13 +97,13 @@ object JsonTools {
         val menus: ListBuffer[Menu] = new ListBuffer[Menu]()
         val menusObjects = (json \ "MenusForDays").as[List[JsObject]]
         for(menu <- menusObjects) {
-          val date = getDate("EEEE", stringToDate((menu \ "Date").as[String]))
+          val day = getDate("EEEE", stringToDate((menu \ "Date").as[String]))
           val foodsBuffer = new ListBuffer[Food]()
           val foodsObjects = (menu \ "SetMenus").as[List[JsObject]]
           for(food <- foodsObjects) {
             foodsBuffer += Food(s"lunch ${foodsBuffer.length}", food("Components").as[List[String]].map(x => Component(x)))
           }
-          menus += new Menu(date, foodsBuffer.toList)
+          menus += new Menu(day, foodsBuffer.toList)
         }
         restaurant.setMenus(menus.toList)
       }

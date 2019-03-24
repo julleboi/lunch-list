@@ -25,6 +25,6 @@ object DateTools {
     (start to start + (6 * (dayInMs)) by dayInMs).map((time: Long) => getDate(format, new Date(time))).toList
   }
 
-  def stringToDate(str: String, format: String = format2) = new SimpleDateFormat(format2).parse(str)
+  def stringToDate(str: String, format: String = format2) = new SimpleDateFormat(format).parse(str)
 
 }
