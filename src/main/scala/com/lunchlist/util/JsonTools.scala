@@ -17,7 +17,19 @@ import com.lunchlist.util.DateTools._
 
 object JsonTools {
 
-  private def readFromFile(path: String): String = Source.fromFile(path).mkString
+  private def readFromFile(path: String): String = {
+    val f = Source.fromFile(path)
+    val ret = f.mkString
+    f.close()
+    return ret
+  }
+
+  private def readFromURL(url: String): String = {
+    val f = Source.fromURL(url)
+    val ret = f.mkString
+    f.close()
+    return ret
+  }
 
   private val configFilePath = "./data/configurations.json"
   
@@ -51,7 +63,7 @@ object JsonTools {
       return Some(raw)
     } else {
       val urls = restaurant.getURLs()
-      val futures: List[Future[String]] = urls.map(url => Future { Source.fromURL(url).mkString })
+      val futures: List[Future[String]] = urls.map(url => Future { readFromURL(url) })
       val result: String = futures.map(Await.result(_, 3 seconds)).mkString(",")
       def prettify(rawStr: String) = Json.prettyPrint(Json.parse(rawStr))
       val raw = {
