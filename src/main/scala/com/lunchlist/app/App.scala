@@ -1,5 +1,9 @@
 package com.lunchlist.app
 
+import scala.concurrent._
+import scala.concurrent.duration._
+import ExecutionContext.Implicits.global
+
 import com.lunchlist.restaurant._
 import com.lunchlist.util.JsonTools.loadRestaurants
 import com.lunchlist.util.JsonTools.loadMenu
@@ -12,7 +16,9 @@ object App {
     def apply(options: String = null): Unit
   }
 
-  val loadMenus: Command = _ => restaurants.foreach(loadMenu)
+  def loadAllMenus() = restaurants.map(r => Future{loadMenu(r)}).map(Await.result(_, 3 seconds))
+
+  val loadMenus: Command = _ => loadAllMenus
 
   def printAvailableActions() = {
     println("Abvailable actions:")

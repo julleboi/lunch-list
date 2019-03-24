@@ -3,6 +3,10 @@ package com.lunchlist.util
 import io.Source
 import collection.mutable.ListBuffer
 
+import scala.concurrent._
+import scala.concurrent.duration._
+import ExecutionContext.Implicits.global
+
 import java.io.PrintWriter
 
 import play.api.libs.json._
@@ -44,9 +48,6 @@ object JsonTools {
 
   def loadRestaurants() = restaurantsToList(configRaw)
 
-  /*
-  * TODO: Fetch JSONs asynchronously to cut down the loading phase
-  */
   private def getRawMenus(restaurant: Restaurant): Option[String] = {
     if(restaurant.hasMenu()) {
       val file = Source.fromFile(restaurant.getMenuFilePath())
@@ -54,17 +55,16 @@ object JsonTools {
       return Some(raw)
     } else {
       val urls = restaurant.getURLs()
-      val readFromURL = (url: String) => Source.fromURL(url).mkString
+      val futures: List[Future[String]] = urls.map(url => Future { Source.fromURL(url).mkString })
+      val result: String = futures.map(Await.result(_, 3 seconds)).mkString(",")
       val prettify = (rawStr: String) => Json.prettyPrint(Json.parse(rawStr))
       val raw = {
         if(urls.length > 1) {
           val start = """{"menus":["""
-          val mid = (urls.init.map(url => readFromURL(url) + ","):+readFromURL(urls.last)).mkString
           val end = "]}"
-          prettify(start + mid + end)
+          prettify(start + result + end)
         } else {
-          val str = urls.map(readFromURL).mkString
-          prettify(str)
+          prettify(result)
         }
       }
       new PrintWriter(restaurant.getMenuFilePath) {
