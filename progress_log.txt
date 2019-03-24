@@ -22,3 +22,24 @@ Progress log 1
   PROGRESS:
   - I think everything is about as progressed as I predicted
 -------------------------------------------------------------------------------------------
+Progress log 2
+
+WHAT IS ADDED:
+  - Parsing Sodexo and Fazer menu JSONs and making menu objects from them
+  - Renamed classes like Moment -> DateTools, Json -> JsonTools
+  - Added class Menu and case classes Food & Component
+  - You can now get a commandline overview of restaurant menus
+  - Fetching JSONS is now concurrent by using scala futures 
+    --> much faster loading times
+  
+  - No tests for added functionality still sadly
+
+  POSSIBLE ERRORS:
+    - No errors as of yet.
+
+  WORKLOAD:
+    - My rough estimate is 15 hours, however not 100% efficent. Been doing the project passively while doing other stuff
+
+  PROGRESS:
+    - Maybe a little ahead or on schedule as only remains documentation, tests, GUI and some of the other functionality like filtering restaurants etc
+-------------------------------------------------------------------------------------------
