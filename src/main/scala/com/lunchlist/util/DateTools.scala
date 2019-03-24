@@ -2,16 +2,17 @@ package com.lunchlist.util
 
 import System.currentTimeMillis
 import java.util.Date
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import java.text.SimpleDateFormat
 
 object DateTools {
 
   private val time = currentTimeMillis()
-
   private val date_ = new Date(time)
+  private val locale = new Locale("fi", "FI")
 
-  def getDate(format: String = "yyyy/MM/dd", date: Date = date_) = new SimpleDateFormat(format).format(date)
+  def getDate(format: String = "yyyy/MM/dd", date: Date = date_) = new SimpleDateFormat(format, locale).format(date)
   
   def getWeek() = getDate("w")
   
