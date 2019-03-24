@@ -17,11 +17,7 @@ import com.lunchlist.util.DateTools._
 
 object JsonTools {
 
-  private def readFromFile(path: String): String = {
-    val source = Source.fromFile(path)
-    val raw = source.getLines.reduceLeft(_ + "\n" + _)
-    return raw
-  }
+  private def readFromFile(path: String): String = Source.fromFile(path).mkString
 
   private val configFilePath = "./data/configurations.json"
   
@@ -51,8 +47,7 @@ object JsonTools {
 
   private def getRawMenus(restaurant: Restaurant): Option[String] = {
     if(restaurant.hasMenu()) {
-      val file = Source.fromFile(restaurant.getMenuFilePath())
-      val raw = file.mkString
+      val raw = readFromFile(restaurant.getMenuFilePath())
       return Some(raw)
     } else {
       val urls = restaurant.getURLs()
