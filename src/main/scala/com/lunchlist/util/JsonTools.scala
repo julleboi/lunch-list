@@ -13,6 +13,7 @@ import play.api.libs.json._
 
 import com.lunchlist.restaurant._
 import com.lunchlist.restaurant.Menu._
+import com.lunchlist.util.DateTools._
 
 object JsonTools {
 
@@ -76,6 +77,17 @@ object JsonTools {
     return None
   }
 
+  private def getDay(n: Int): String = n match {
+    case 0 => "Monday"
+    case 1 => "Tuesday"
+    case 2 => "Wednesday"
+    case 3 => "Thursday"
+    case 4 => "Friday"
+    case 5 => "Saturday"
+    case 6 => "Sunday"
+    case _ => "INVALID DAY"
+  }
+
   private def loadFazerMenus(restaurant: Restaurant): Unit = {
     val menusOption = getRawMenus(restaurant)
     menusOption match {
@@ -85,12 +97,13 @@ object JsonTools {
         val menus: ListBuffer[Menu] = new ListBuffer[Menu]()
         val menusObjects = (json \ "MenusForDays").as[List[JsObject]]
         for(menu <- menusObjects) {
+          val date = getDate("EEEE", stringToDate((menu \ "Date").as[String]))
           val foodsBuffer = new ListBuffer[Food]()
           val foodsObjects = (menu \ "SetMenus").as[List[JsObject]]
           for(food <- foodsObjects) {
             foodsBuffer += Food(s"lunch ${foodsBuffer.length}", food("Components").as[List[String]].map(x => Component(x)))
           }
-          menus += new Menu(foodsBuffer.toList)
+          menus += new Menu(date, foodsBuffer.toList)
         }
         restaurant.setMenus(menus.toList)
       }
@@ -106,13 +119,15 @@ object JsonTools {
         val json = Json.parse(menu)
         val menus: ListBuffer[Menu] = new ListBuffer[Menu]()
         val menusObjects = (json \ "menus").as[List[JsObject]]
+        var n = 0;
         for(menu <- menusObjects) {
           val foodsBuffer = new ListBuffer[Food]()
           val foodsObjects = (menu \ "courses").as[List[JsObject]]
           for(food <- foodsObjects) {
             foodsBuffer += Food(s"lunch ${foodsBuffer.length}", List(Component(food("title_en").as[String])))
           }
-          menus += new Menu(foodsBuffer.toList)
+          menus += new Menu(getDay(n), foodsBuffer.toList)
+          n += 1
         }
         restaurant.setMenus(menus.toList)
       }
