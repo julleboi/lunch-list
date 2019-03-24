@@ -6,7 +6,7 @@ import ExecutionContext.Implicits.global
 
 import com.lunchlist.restaurant._
 import com.lunchlist.util.JsonTools.loadRestaurants
-import com.lunchlist.util.JsonTools.loadMenu
+import com.lunchlist.util.JsonTools.loadMenus
 
 object App {
   
@@ -16,9 +16,8 @@ object App {
     def apply(options: String = null): Unit
   }
 
-  def loadAllMenus() = restaurants.map(r => Future{loadMenu(r)}).map(Await.result(_, 3 seconds))
-
-  val loadMenus: Command = _ => loadAllMenus
+  def loadAllMenus = restaurants.map(r => Future{loadMenus(r)}).foreach(Await.result(_, 3 seconds))
+  val load: Command = _ => loadAllMenus
 
   def printAvailableActions() = {
     println("Abvailable commands:")
@@ -37,7 +36,7 @@ object App {
   val invalid: Command = _ => terminate
 
   val inputToCommand: Map[String, Command] = Map(
-    "load"     -> loadMenus,
+    "load"     -> load,
     "commands" -> printCommands,
     "usage"    -> printUsage
   ).withDefaultValue(invalid)

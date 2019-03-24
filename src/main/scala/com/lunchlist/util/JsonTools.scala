@@ -76,7 +76,7 @@ object JsonTools {
     return None
   }
 
-  private def loadFazerMenu(restaurant: Restaurant): Unit = {
+  private def loadFazerMenus(restaurant: Restaurant): Unit = {
     val menusOption = getRawMenus(restaurant)
     menusOption match {
       case Some(menu) => {
@@ -98,7 +98,7 @@ object JsonTools {
     }
   }
 
-  private def loadSodexoMenu(restaurant: Restaurant): Unit = {
+  private def loadSodexoMenus(restaurant: Restaurant): Unit = {
     val menusOption = getRawMenus(restaurant)
       menusOption match {
       case Some(menu) => {
@@ -111,12 +111,12 @@ object JsonTools {
     }
   }
 
-  def loadMenu(restaurant: Restaurant): Unit = {
+  def loadMenus(restaurant: Restaurant): Unit = {
     restaurant match {
       case fazer: FazerRestaurant =>
-        loadFazerMenu(restaurant)
+        loadFazerMenus(restaurant)
       case sodexo: SodexoRestaurant =>
-        loadSodexoMenu(restaurant)
+        loadSodexoMenus(restaurant)
     }
   }
 }
