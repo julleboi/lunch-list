@@ -42,13 +42,9 @@ object App {
     "usage"    -> printUsage
   ).withDefaultValue(invalid)
 
-  /*
-   * Parses  user input and runs the corresponding command
-   */
   def handleArgs(args: Array[String]): Unit = {
     val argsSplit = args.foldLeft(" ")(_ + " " + _).split(" -").tail
     if(argsSplit.isEmpty){
-      // No actions were specified to be run
       println("No actions specified.")
       printUsage()
       printCommands()
@@ -56,22 +52,16 @@ object App {
     for(command <- argsSplit) {
       val commandSplit = command.split("=")
       if(commandSplit.length < 2) {
-        // No options for this command, run it as it's
         val commandName = command.toLowerCase()
         inputToCommand(commandName)()
       } else {
-        // Give options as parameter for this command
         val commandName = commandSplit.head.toLowerCase()
-        val options = commandSplit.tail.reduceLeft(_ + _) // reduceLeft is sort of unnecessary, 
-                                                          // but makes it fail-safe in case of multiple '='s
+        val options = commandSplit.tail.reduceLeft(_ + _)
         inputToCommand(commandName)(options)
       }
     }
   }
 
-  /*
-   * Main method
-   */
   def main(args: Array[String]): Unit = {
     handleArgs(args)
   }
