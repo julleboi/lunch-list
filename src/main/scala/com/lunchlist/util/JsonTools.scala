@@ -83,8 +83,8 @@ object JsonTools {
         println(s"Found menu for restaurant '${restaurant.name}'")
         val json = Json.parse(menu)
         val menus: ListBuffer[Menu] = new ListBuffer[Menu]()
-        val menuObjects = (json \ "MenusForDays").as[List[JsObject]]
-        for(menu <- menuObjects) {
+        val menusObjects = (json \ "MenusForDays").as[List[JsObject]]
+        for(menu <- menusObjects) {
           val foodsBuffer = new ListBuffer[Food]()
           val foodsObjects = (menu \ "SetMenus").as[List[JsObject]]
           for(food <- foodsObjects) {
@@ -105,7 +105,16 @@ object JsonTools {
         println(s"Found menu for restaurant '${restaurant.name}'")
         val json = Json.parse(menu)
         val menus: ListBuffer[Menu] = new ListBuffer[Menu]()
-
+        val menusObjects = (json \ "menus").as[List[JsObject]]
+        for(menu <- menusObjects) {
+          val foodsBuffer = new ListBuffer[Food]()
+          val foodsObjects = (menu \ "courses").as[List[JsObject]]
+          for(food <- foodsObjects) {
+            foodsBuffer += Food(s"lunch ${foodsBuffer.length}", List(Component(food("title_en").as[String])))
+          }
+          menus += new Menu(foodsBuffer.toList)
+        }
+        restaurant.setMenus(menus.toList)
       }
       case None => println(s"Wasn't able to fetch menu for restaurant '${restaurant.name}'")
     }

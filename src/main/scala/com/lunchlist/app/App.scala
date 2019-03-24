@@ -19,6 +19,9 @@ object App {
   def loadAllMenus = restaurants.map(r => Future{loadMenus(r)}).foreach(Await.result(_, 3 seconds))
   val load: Command = _ => loadAllMenus
 
+  def printMenus = restaurants foreach println
+  val print: Command = _ => printMenus
+
   def printAvailableActions() = {
     println("Abvailable commands:")
     println(inputToCommand.keys.map("-"+_).reduceLeft(_ + ", " + _))
@@ -37,6 +40,7 @@ object App {
 
   val inputToCommand: Map[String, Command] = Map(
     "load"     -> load,
+    "print"    -> print,
     "commands" -> printCommands,
     "usage"    -> printUsage
   ).withDefaultValue(invalid)

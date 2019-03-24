@@ -4,4 +4,6 @@ case class Component(val name: String = "undefined")
 
 case class Food(val name: String, val components: List[Component])
 
-class Menu(val foods: List[Food] = List[Food]())
+class Menu(val foods: List[Food] = List[Food]()) {
+  override def toString(): String = this.foods.map(f=>f.name+"\n  - "+f.components.map(_.name).mkString("\n  - ")).mkString("\n")
+}

@@ -16,8 +16,8 @@ abstract class Restaurant(val name: String, val id: String) {
 
   def setMenus(menus: List[Menu]): Unit = this.menus = menus
 
-  def getMenu(): List[Menu] = this.menus
+  def getMenus(): List[Menu] = this.menus
 
-  override def toString(): String = this.name
+  override def toString(): String = this.name + "\n==========\n" + menus.map(_.toString()).mkString("\n-----\n") + "=========="
   
 }
