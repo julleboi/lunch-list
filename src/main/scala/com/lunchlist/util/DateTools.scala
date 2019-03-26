@@ -17,6 +17,8 @@ object DateTools {
   def getDate(format: String = format_, date: Date = date_) = new SimpleDateFormat(format, locale).format(date)
   
   def getWeek() = getDate("w")
+
+  def getDay(date: Date = date_) = getDate("EEEE", date)
   
   def getDatesThisWeek(format: String = format_): List[String] = {
     val dayInMs = TimeUnit.DAYS.toMillis(1)

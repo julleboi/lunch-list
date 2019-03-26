@@ -4,6 +4,7 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
 
+import com.lunchlist.app.gui.LunchListView
 import com.lunchlist.restaurant._
 import com.lunchlist.util.JsonTools.loadRestaurants
 import com.lunchlist.util.JsonTools.loadMenus
@@ -21,6 +22,9 @@ object App {
 
   def printMenus = restaurants foreach println
   val print: Command = _ => printMenus
+
+  def launchGUI = LunchListView.start(restaurants)
+  val gui: Command = _ => launchGUI
 
   def printAvailableActions() = {
     println("Abvailable commands:")
@@ -41,6 +45,7 @@ object App {
   val inputToCommand: Map[String, Command] = Map(
     "load"     -> load,
     "print"    -> print,
+    "gui"      -> gui,
     "commands" -> printCommands,
     "usage"    -> printUsage
   ).withDefaultValue(invalid)

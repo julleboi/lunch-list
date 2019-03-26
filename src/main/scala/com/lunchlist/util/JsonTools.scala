@@ -84,7 +84,7 @@ object JsonTools {
     return None
   }
 
-  private def getDay(n: Int): String = n match {
+  private def getDay_(n: Int): String = n match {
     case 0 => "Monday"
     case 1 => "Tuesday"
     case 2 => "Wednesday"
@@ -104,7 +104,9 @@ object JsonTools {
         val menus: ListBuffer[Menu] = new ListBuffer[Menu]()
         val menusObjects = (json \ "MenusForDays").as[List[JsObject]]
         for(menu <- menusObjects) {
-          val day = getDate("EEEE", stringToDate((menu \ "Date").as[String]))
+          val dateStr: String = (menu \ "Date").as[String]
+          val date = stringToDate(dateStr)
+          val day = getDay(date)
           val foodsBuffer = new ListBuffer[Food]()
           val foodsObjects = (menu \ "SetMenus").as[List[JsObject]]
           for(food <- foodsObjects) {
@@ -133,7 +135,7 @@ object JsonTools {
           for(food <- foodsObjects) {
             foodsBuffer += Food(s"lunch ${foodsBuffer.length}", List(Component(food("title_en").as[String])))
           }
-          menus += new Menu(getDay(n), foodsBuffer.toList)
+          menus += new Menu(getDay_(n), foodsBuffer.toList)
           n += 1
         }
         restaurant.setMenus(menus.toList)

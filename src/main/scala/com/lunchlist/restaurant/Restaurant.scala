@@ -2,7 +2,7 @@ package com.lunchlist.restaurant
 
 import io.Source
 
-import com.lunchlist.util.DateTools.getWeek
+import com.lunchlist.util.DateTools.{getWeek, getDay}
 
 abstract class Restaurant(val name: String, val id: String) {
 
@@ -18,6 +18,8 @@ abstract class Restaurant(val name: String, val id: String) {
 
   def getMenus(): List[Menu] = this.menus
 
-  override def toString(): String = this.name + "\n==========\n" + menus.map(_.toString()).mkString("\n-----\n") + "==========\n"
+  def getTodaysMenu(): Option[Menu] = this.menus.find(_.day == getDay())
+
+  override def toString(): String = this.name + "\n==========\n" + this.getTodaysMenu.getOrElse("No menu for this day") + "\n==========\n"
   
 }
