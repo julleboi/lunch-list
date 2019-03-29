@@ -110,7 +110,7 @@ object JsonTools {
           val foodsBuffer = new ListBuffer[Food]()
           val foodsObjects = (menu \ "SetMenus").as[List[JsObject]]
           for(food <- foodsObjects) {
-            foodsBuffer += Food(s"lunch ${foodsBuffer.length}", food("Components").as[List[String]].map(x => Component(x)))
+            foodsBuffer += Food(s"lunch ${foodsBuffer.length + 1}", food("Components").as[List[String]].map(x => Component(x)))
           }
           menus += new Menu(day, foodsBuffer.toList)
         }
@@ -133,7 +133,7 @@ object JsonTools {
           val foodsBuffer = new ListBuffer[Food]()
           val foodsObjects = (menu \ "courses").as[List[JsObject]]
           for(food <- foodsObjects) {
-            foodsBuffer += Food(s"lunch ${foodsBuffer.length}", List(Component(food("title_en").as[String])))
+            foodsBuffer += Food(s"lunch ${foodsBuffer.length + 1}", List(Component(food("title_en").as[String])))
           }
           menus += new Menu(getDay_(n), foodsBuffer.toList)
           n += 1
