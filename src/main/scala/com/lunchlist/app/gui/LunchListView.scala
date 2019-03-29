@@ -15,12 +15,13 @@ import scalafx.scene.control.{ScrollPane, Label, Button}
 import scalafx.scene.layout.{BorderPane, TilePane, HBox, VBox}
 
 import com.lunchlist.restaurant._
-import com.lunchlist.util.DateTools.{getDate, getDay}
+import com.lunchlist.util.DateTools.{getDate, getDay, getWeek}
 
 class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
 
-  private val daysOfTheWeek = List("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-
+  private val days = 
+    List("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+      .dropWhile(_ != getDay())
   private val day = StringProperty(getDay())
 
   private val restaurantByName: Map[String, Restaurant] =
@@ -42,8 +43,7 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
       .toMap
         .withDefaultValue(StringProperty(""))
   
-  title = "Otaniemi lunch list"
-  width = 1200
+  title = "Otaniemi lunch list - Week " + getWeek()
   height = 800
   scene = new Scene {
     root = new BorderPane {
@@ -66,7 +66,8 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
           new HBox {
             alignment = Pos.Center
             margin = Insets(10, 0, 10, 0)
-            children = daysOfTheWeek.map((d: String) => {
+            spacing = 5
+            children = days.map((d: String) => {
               val cb = () => {
                 day.set(d)
                 for((key, value) <- menuText) {
@@ -82,12 +83,11 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
       }
       center = new ScrollPane {
         hbarPolicy = ScrollPane.ScrollBarPolicy.Never
-        fitToWidth = true
         content = new TilePane {
-          fitToWidth = true
-          padding = Insets(10, 10, 10, 10)
+          padding = Insets(10, 40, 10, 40)
           hgap = 10
           vgap = 10
+          prefColumns = 3
           children = restaurants.map(menuView)
         }
       }
@@ -105,6 +105,7 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
       padding = Insets(10, 10, 10, 10)
       visible <== isVisible(restaurant.name)
       managed <== isVisible(restaurant.name)
+      prefWidth = 400
       top = new Label {
         style = "-fx-underline: true"
         padding = Insets(0, 0, 20, 0)
@@ -113,6 +114,7 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
       }
       center = new Label {
         alignmentInParent = Pos.TopLeft
+        wrapText = true
         text <== menuText(restaurant.name)
       }
       bottom = new HBox {
