@@ -6,7 +6,7 @@ class Property(val name: String)
 case class OtherProperty(propName: String) extends Property(propName)
 case object GlutenFree extends Property("gluten free")
 case object LactoseFree extends Property("lactose free")
-case object Vegetarian extends Property("vegetarian")
+case object Vegan extends Property("vegan")
 
 case class Component(val name: String = "undefined") {
   val properties: List[Property] = 
@@ -18,7 +18,7 @@ case class Component(val name: String = "undefined") {
               .map(str => str.toLowerCase() match {
                 case "g" => GlutenFree
                 case "l" => LactoseFree
-                case "veg" => Vegetarian
+                case "veg" => Vegan
                 case _ => OtherProperty(str)
               })
                 .toList
@@ -42,8 +42,8 @@ class Menu(val day: String = "", private val allFoods: List[Food] = List[Food]()
             filteredProps.forall(prop => props.forall(_.contains(prop))) || 
             /* 
              * or food name contains a filtered props' names, 
-             * e.g. you're filtering for vegetarian food and 
-             * the food's title is vegetarian pizza, so the
+             * e.g. you're filtering for vegan food and 
+             * the food's title is vegan pizza, so the
              * condition is met in this case.
              */
             filteredProps.forall(prop => food.name.toLowerCase().contains(prop.name))

@@ -114,7 +114,7 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
               }
               updateMenus()
             }
-            val vegCb = () => filterCb(Vegetarian)
+            val vegCb = () => filterCb(Vegan)
             val lacCb = () => filterCb(LactoseFree)
             val gluCb = () => filterCb(GlutenFree)
             children = Seq(
@@ -125,7 +125,7 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
                   println(searchField)
                 }
               },
-              new Btn(vegCb, "🌿 Vegetarian", Some(false)),
+              new Btn(vegCb, "🌿 Vegan", Some(false)),
               new Btn(lacCb, "🐄 Lactose free", Some(false)),
               new Btn(gluCb, "🌾 Gluten free", Some(false)),
             )

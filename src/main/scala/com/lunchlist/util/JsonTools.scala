@@ -5,6 +5,7 @@ import collection.mutable.ListBuffer
 import concurrent._
 import concurrent.duration._
 import ExecutionContext.Implicits.global
+import scala.util.Try
 
 import java.io.PrintWriter
 
@@ -42,7 +43,7 @@ object JsonTools {
       val rType = restaurant("type")
       val name = restaurant("name")
       val id = restaurant("id")
-      val fav = scala.util.Try(restaurant("favorite").toBoolean).getOrElse(false)
+      val fav = Try(restaurant("favorite").toBoolean).getOrElse(false)
       rType match {
         case "fazer" => { 
           val r = new FazerRestaurant(name, id)
@@ -116,7 +117,7 @@ object JsonTools {
           val foodsBuffer = new ListBuffer[Food]()
           val foodsObjects = (menu \ "SetMenus").as[List[JsObject]]
           for(food <- foodsObjects) {
-            val title = scala.util.Try(food("Name").as[String]).getOrElse("Lunch")
+            val title = Try(food("Name").as[String]).getOrElse("Lunch")
             foodsBuffer += Food(title, food("Components").as[List[String]].map(x => Component(x)))
           }
           menus += new Menu(day, foodsBuffer.toList)
@@ -140,7 +141,11 @@ object JsonTools {
           val foodsBuffer = new ListBuffer[Food]()
           val foodsObjects = (menu \ "courses").as[List[JsObject]]
           for(food <- foodsObjects) {
-            foodsBuffer += Food(s"Lunch ${foodsBuffer.length + 1}", List(Component(food("title_en").as[String])))
+            val name = "Lunch " + (foodsBuffer.length + 1)
+            val title = food("title_en").as[String]
+            val properties = Try("("+food("properties").as[String]+")").getOrElse("")
+            val components = List(Component(title+properties))
+            foodsBuffer += Food(name, components)
           }
           menus += new Menu(getDay_(n), foodsBuffer.toList)
           n += 1
