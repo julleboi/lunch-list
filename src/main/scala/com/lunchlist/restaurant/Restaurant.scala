@@ -20,6 +20,12 @@ abstract class Restaurant(val name: String, val id: String) {
 
   def getTodaysMenu(): Option[Menu] = this.menus.find(_.day == getDay())
 
+  protected var favorite: Boolean = false
+
+  def isFavorite(): Boolean = this.favorite
+
+  def setFavorite(b: Boolean) = this.favorite = b
+
   override def toString(): String = this.name + "\n==========\n" + this.getTodaysMenu.getOrElse("No menu for this day") + "\n==========\n"
   
 }

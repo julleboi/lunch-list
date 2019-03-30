@@ -8,6 +8,7 @@ import scalafx.beans.property.BooleanProperty._
 import scalafx.beans.property.StringProperty
 import scalafx.beans.property.StringProperty._
 import scalafx.geometry.{Insets, Pos}
+import scalafx.Includes._
 import scalafx.stage.Stage
 import scalafx.scene.Scene
 import scalafx.scene.text.Font
@@ -16,6 +17,7 @@ import scalafx.scene.layout.{BorderPane, TilePane, HBox, VBox}
 
 import com.lunchlist.restaurant._
 import com.lunchlist.util.DateTools.{getDate, getDay, getWeek}
+import com.lunchlist.util.JsonTools.setFavorites
 
 class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
 
@@ -30,6 +32,11 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
   
   private val isVisible: Map[String, BooleanProperty] = 
     restaurants.map(r => (r.name, BooleanProperty(true)))
+      .toMap
+        .withDefaultValue(BooleanProperty(false))
+
+  private val isFavorite: Map[String, BooleanProperty] = 
+    restaurants.map(r => (r.name, BooleanProperty(r.isFavorite())))
       .toMap
         .withDefaultValue(BooleanProperty(false))
 
@@ -88,7 +95,10 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
           hgap = 10
           vgap = 10
           prefColumns = 3
-          children = restaurants.map(menuView)
+          children = 
+            restaurants
+              .sortWith(_.isFavorite() && !_.isFavorite())
+                .map(menuView)
         }
       }
     }
@@ -96,12 +106,14 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
 
   private def menuView(restaurant: Restaurant) = {
     new BorderPane {
-      style = 
+      val style_ = 
         """
         -fx-background-radius: 5;
-        -fx-background-color: white;
         -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 5, 0, 0, 0);
         """
+      val notFavorite = style_.concat("-fx-background-color: #ffffff;")
+      val favorite = style_.concat("-fx-background-color: #ffffee")
+      style <== when(isFavorite(restaurant.name)) choose favorite otherwise notFavorite
       padding = Insets(10, 10, 10, 10)
       visible <== isVisible(restaurant.name)
       managed <== isVisible(restaurant.name)
@@ -118,10 +130,18 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
         text <== menuText(restaurant.name)
       }
       bottom = new HBox {
+        alignment = Pos.BottomRight
         margin = Insets(20, 0, 0, 0)
+        spacing = 5
         val hideBtnCb = () => isVisible(restaurant.name).set(false)
+        val favBtnCb = () => {
+          val isFav = restaurant.isFavorite
+          restaurant.setFavorite(!isFav)
+          isFavorite(restaurant.name).set(!isFav)
+        }
         children = Seq(
-          new Btn(hideBtnCb, "hide me")
+          new Btn(hideBtnCb, "🚫"),
+          new Btn(favBtnCb, "❤️")
         )
       }
     }
@@ -135,7 +155,7 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
       -fx-border-color: #aaaaaa;
       """
     val notHovered = style_.concat("-fx-background-color: #ffffff;")
-    val hovered = style_.concat("-fx-background-color: #dddddd")
+    val hovered = style_.concat("-fx-background-color: #dddddd;")
     val s = StringProperty(notHovered)
     style <== s
     text = name
@@ -159,6 +179,7 @@ object LunchListView {
     Platform.runLater({
       val view = new LunchListView(restaurants)
       view.showAndWait()
+      setFavorites(restaurants)
       Platform.exit()
     })
   }

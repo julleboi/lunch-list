@@ -38,16 +38,23 @@ object JsonTools {
   private def restaurantsToList(rawStr: String): List[Restaurant] = {
     val json = Json.parse(rawStr)
     val restaurants: ListBuffer[Restaurant] = new ListBuffer()
-    val restaurantsObjects = (json \ "restaurants").as[List[Map[String, String]]]
+    val restaurantsObjects = json.as[List[Map[String, String]]]
     for(restaurant <- restaurantsObjects) {
       val rType = restaurant("type")
       val name = restaurant("name")
       val id = restaurant("id")
+      val fav = scala.util.Try(restaurant("favorite").toBoolean).getOrElse(false)
       rType match {
-        case "fazer" => 
-          restaurants += new FazerRestaurant(name, id)
-        case "sodexo" => 
-          restaurants += new SodexoRestaurant(name, id)
+        case "fazer" => { 
+          val r = new FazerRestaurant(name, id)
+          r.setFavorite(fav)
+          restaurants += r
+        }
+        case "sodexo" => { 
+          val r = new SodexoRestaurant(name, id)
+          r.setFavorite(fav)
+          restaurants += r
+        }
         case unknownType => 
           println(s"Cannot create a Restaurant-object for a Restaurant of type '$rType'")
       }
@@ -149,5 +156,36 @@ object JsonTools {
       loadFazerMenus(restaurant)
     case sodexo: SodexoRestaurant =>
       loadSodexoMenus(restaurant)
+  }
+
+  def setFavorites(restaurants: List[Restaurant]): Unit = {
+    var updateNeeded = false
+    val json = Json.parse(configRaw)
+    val ids = restaurants.map(_.id)
+    val edited = 
+      json
+        .as[List[Map[String, String]]]
+          .map((m: Map[String, String]) => {
+            val id = m("id")
+            if(ids.exists(_ == id)) {
+              updateNeeded = true
+              val newValue = 
+                restaurants
+                  .find(_.id == id)
+                    .map(_.isFavorite().toString)
+                      .getOrElse("false")
+              m + ("favorite" -> newValue)
+            } else {
+              m
+            }
+          })
+    if(updateNeeded) {
+      val newJson = Json.toJson(edited)
+      val rawStr = Json.prettyPrint(newJson)
+      new PrintWriter(configFilePath) {
+        write(rawStr)
+        close
+      }
+    }
   }
 }
