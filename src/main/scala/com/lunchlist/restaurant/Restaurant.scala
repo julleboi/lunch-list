@@ -26,6 +26,6 @@ abstract class Restaurant(val name: String, val id: String) {
 
   def setFavorite(b: Boolean) = this.favorite = b
 
-  override def toString(): String = this.name + "\n==========\n" + this.getTodaysMenu.getOrElse("No menu for this day") + "\n==========\n"
+  override def toString(): String = this.name+"\n"+("="*this.name.length)+"\n"+this.getTodaysMenu.getOrElse("No menu for this day")+"\n"
   
 }
