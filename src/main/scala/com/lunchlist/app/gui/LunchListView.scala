@@ -8,20 +8,20 @@ import scalafx.beans.property.BooleanProperty._
 import scalafx.beans.property.StringProperty
 import scalafx.beans.property.StringProperty._
 import scalafx.geometry.{Insets, Pos}
-import scalafx.Includes._
 import scalafx.stage.Stage
 import scalafx.scene.Scene
 import scalafx.scene.text.Font
-import scalafx.scene.control.{ScrollPane, Label, Button}
+import scalafx.scene.control.{ScrollPane, Label, TextField}
 import scalafx.scene.layout.{BorderPane, TilePane, HBox, VBox}
 
 import com.lunchlist.restaurant._
+import com.lunchlist.restaurant.Menu._
 import com.lunchlist.util.DateTools.{getDate, getDay, getWeek}
 import com.lunchlist.util.JsonTools.setFavorites
 
 class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
 
-  private val days = 
+  private val days: List[String] = 
     List("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
       .dropWhile(_ != getDay())
   private val day = StringProperty(getDay())
@@ -49,9 +49,28 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
     restaurants.map(r => (r.name, StringProperty(getMenu(r))))
       .toMap
         .withDefaultValue(StringProperty(""))
+  private def updateMenus(): Unit = {
+    for((key, value) <- menuText) {
+      val restaurant = restaurantByName(key)
+      val menu = getMenu(restaurant)
+      value.set(menu)
+    }
+  }
+
+  private val searchField: StringProperty = StringProperty("")
+
+  private val filtered = collection.mutable.ListBuffer[Property]()
+  private def filterProperty(prop: Property): Unit = {
+    if(filtered.contains(prop)) {
+      filtered -= prop
+    } else {
+      filtered += prop
+    }
+  }
   
   title = "Otaniemi lunch list - Week " + getWeek()
   height = 800
+  resizable = false
   scene = new Scene {
     root = new BorderPane {
       style =
@@ -72,19 +91,44 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
           },
           new HBox {
             alignment = Pos.Center
-            margin = Insets(10, 0, 10, 0)
+            padding = Insets(5, 0, 5, 0)
             spacing = 5
             children = days.map((d: String) => {
               val cb = () => {
                 day.set(d)
-                for((key, value) <- menuText) {
-                  val restaurant = restaurantByName(key)
-                  val menu = getMenu(restaurant)
-                  value.set(menu)
-                }
+                updateMenus()
               }
               new Btn(cb, d)
             })
+          },
+          new HBox {
+            padding = Insets(0, 0, 5, 40)
+            spacing = 5
+            val filterCb = (prop: Property) => {
+              filterProperty(prop)
+              for{
+                restaurant <- restaurants
+                menu <- restaurant.getMenus()
+              }{
+                menu.filterForProperties(filtered.toList)
+              }
+              updateMenus()
+            }
+            val vegCb = () => filterCb(Vegetarian)
+            val lacCb = () => filterCb(LactoseFree)
+            val gluCb = () => filterCb(GlutenFree)
+            children = Seq(
+              new TextField {
+                text <==> searchField
+                promptText = "search"
+                onAction = _ => {
+                  println(searchField)
+                }
+              },
+              new Btn(vegCb, "🌿 Vegetarian", Some(false)),
+              new Btn(lacCb, "🐄 Lactose free", Some(false)),
+              new Btn(gluCb, "🌾 Gluten free", Some(false)),
+            )
           }
         )
       }
@@ -106,14 +150,12 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
 
   private def menuView(restaurant: Restaurant) = {
     new BorderPane {
-      val style_ = 
+      style = 
         """
         -fx-background-radius: 5;
+        -fx-background-color: #ffffff;
         -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.3), 5, 0, 0, 0);
         """
-      val notFavorite = style_.concat("-fx-background-color: #ffffff;")
-      val favorite = style_.concat("-fx-background-color: #ffffee")
-      style <== when(isFavorite(restaurant.name)) choose favorite otherwise notFavorite
       padding = Insets(10, 10, 10, 10)
       visible <== isVisible(restaurant.name)
       managed <== isVisible(restaurant.name)
@@ -135,33 +177,16 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
         spacing = 5
         val hideBtnCb = () => isVisible(restaurant.name).set(false)
         val favBtnCb = () => {
-          val isFav = restaurant.isFavorite
+          val isFav = restaurant.isFavorite()
           restaurant.setFavorite(!isFav)
           isFavorite(restaurant.name).set(!isFav)
         }
         children = Seq(
           new Btn(hideBtnCb, "🚫"),
-          new Btn(favBtnCb, "❤️")
+          new Btn(favBtnCb, "❤️", Some(restaurant.isFavorite()))
         )
       }
     }
-  }
-
-  private class Btn(cb: () => Unit, name: String) extends Button {
-    val style_ = 
-      """
-      -fx-background-radius: 3;
-      -fx-border-radius: 3;
-      -fx-border-color: #aaaaaa;
-      """
-    val notHovered = style_.concat("-fx-background-color: #ffffff;")
-    val hovered = style_.concat("-fx-background-color: #dddddd;")
-    val s = StringProperty(notHovered)
-    style <== s
-    text = name
-    onMouseEntered = _ => s.set(hovered)
-    onMouseExited = _ => s.set(notHovered)
-    onAction = _ => cb()
   }
 
 }

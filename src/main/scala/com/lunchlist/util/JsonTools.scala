@@ -2,9 +2,8 @@ package com.lunchlist.util
 
 import io.Source
 import collection.mutable.ListBuffer
-
-import scala.concurrent._
-import scala.concurrent.duration._
+import concurrent._
+import concurrent.duration._
 import ExecutionContext.Implicits.global
 
 import java.io.PrintWriter
@@ -33,7 +32,7 @@ object JsonTools {
 
   private val configFilePath = "./data/configurations.json"
   
-  private val configRaw = readFromFile(configFilePath)
+  private lazy val configRaw = readFromFile(configFilePath)
 
   private def restaurantsToList(rawStr: String): List[Restaurant] = {
     val json = Json.parse(rawStr)
@@ -117,7 +116,8 @@ object JsonTools {
           val foodsBuffer = new ListBuffer[Food]()
           val foodsObjects = (menu \ "SetMenus").as[List[JsObject]]
           for(food <- foodsObjects) {
-            foodsBuffer += Food(s"lunch ${foodsBuffer.length + 1}", food("Components").as[List[String]].map(x => Component(x)))
+            val title = scala.util.Try(food("Name").as[String]).getOrElse("Lunch")
+            foodsBuffer += Food(title, food("Components").as[List[String]].map(x => Component(x)))
           }
           menus += new Menu(day, foodsBuffer.toList)
         }
@@ -140,7 +140,7 @@ object JsonTools {
           val foodsBuffer = new ListBuffer[Food]()
           val foodsObjects = (menu \ "courses").as[List[JsObject]]
           for(food <- foodsObjects) {
-            foodsBuffer += Food(s"lunch ${foodsBuffer.length + 1}", List(Component(food("title_en").as[String])))
+            foodsBuffer += Food(s"Lunch ${foodsBuffer.length + 1}", List(Component(food("title_en").as[String])))
           }
           menus += new Menu(getDay_(n), foodsBuffer.toList)
           n += 1
