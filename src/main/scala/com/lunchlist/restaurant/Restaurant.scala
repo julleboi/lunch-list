@@ -18,7 +18,9 @@ abstract class Restaurant(val name: String, val id: String) {
 
   def getMenus(): List[Menu] = this.menus
 
-  def getTodaysMenu(): Option[Menu] = this.menus.find(_.day == getDay())
+  def getMenuForDay(day: String): Option[Menu] = this.menus.find(_.day == day)
+
+  def getTodaysMenu(): Option[Menu] = this.getMenuForDay(getDay())
 
   protected var favorite: Boolean = false
 
@@ -26,6 +28,13 @@ abstract class Restaurant(val name: String, val id: String) {
 
   def setFavorite(b: Boolean) = this.favorite = b
 
-  override def toString(): String = this.name+"\n"+("="*this.name.length)+"\n"+this.getTodaysMenu.getOrElse("No menu for this day")+"\n"
+  override def toString(): String = {
+    this.name + 
+    "\n" + 
+    ( "=" * this.name.length ) + 
+    "\n" + 
+    this.getTodaysMenu.getOrElse("No menu for this day") + 
+    "\n"
+  }
   
 }

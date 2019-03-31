@@ -29,35 +29,34 @@ case class Component(val name: String = "undefined") {
                 .toList
 }
 
-case class Food(val name: String, val components: List[Component])
+class Food(val name: String, val components: List[Component]) {
+  def containsFilteredProps(filteredProps: List[Property]) = {
+    val props = this.components.map(_.properties)
+    val existsOnProps = (prop: Property) => props.forall(_.contains(prop))
+    val appearsInName = (prop: Property) => this.name.toLowerCase.contains(prop.name)
+    filteredProps.forall((p: Property) => existsOnProps(p) || appearsInName(p))
+  }
+}
 
 class Menu(val day: String = "", private val allFoods: List[Food] = List[Food]()) {
 
   private var foods: List[Food] = allFoods
 
-  def filterForProperties(filteredProps: List[Property]) = {
+  def filterForProperties(filteredProps: List[Property]): Unit = {
     if(filteredProps.isEmpty)
       foods = allFoods
     else
-      foods = 
-        allFoods
-          .filter(food => {
-            val props = food.components.map(_.properties)
-            filteredProps
-              .forall(prop => 
-                /* filtered prop exists on all components props */
-                props.forall(_.contains(prop) ||
-                /* 
-                 * or food name contains filtered prop's name
-                 * e.g. you're filtering for vegan food and 
-                 * the food's title is vegan pizza, so the
-                 * condition is met in this case.
-                 */
-                food.name.toLowerCase().contains(prop.name)
-            )) 
-          })
+      foods = allFoods.filter(_.containsFilteredProps(filteredProps))
   }
 
-  override def toString(): String = this.foods.map(f=>f.name+"\n  - "+f.components.map(_.name).mkString("\n  - ")).mkString("\n")
+  override def toString(): String = {
+    this.foods.map((f: Food) => 
+      f.name + 
+      "\n  - " + 
+      f.components
+        .map(_.name)
+        .mkString("\n  - ")
+    ).mkString("\n")
+  }
   
 }

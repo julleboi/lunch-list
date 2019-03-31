@@ -118,7 +118,7 @@ object JsonTools {
           val foodsObjects = (menu \ "SetMenus").as[List[JsObject]]
           for(food <- foodsObjects) {
             val title = Try(food("Name").as[String]).getOrElse("Lunch")
-            foodsBuffer += Food(title, food("Components").as[List[String]].map(x => Component(x)))
+            foodsBuffer += new Food(title, food("Components").as[List[String]].map(x => Component(x)))
           }
           menus += new Menu(day, foodsBuffer.toList)
         }
@@ -145,7 +145,7 @@ object JsonTools {
             val title = food("title_en").as[String]
             val properties = Try("("+food("properties").as[String]+")").getOrElse("")
             val components = List(Component(title+properties))
-            foodsBuffer += Food(name, components)
+            foodsBuffer += new Food(name, components)
           }
           menus += new Menu(getDay_(n), foodsBuffer.toList)
           n += 1
