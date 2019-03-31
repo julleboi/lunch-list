@@ -79,6 +79,11 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
         -fx-box-border: transparent;
         """
       top = new VBox {
+        style =
+          """
+          -fx-border-color: #cccccc;
+          -fx-border-width: 0 0 1 0;
+          """
         children = Seq(
           new HBox {
             alignment = Pos.Center
@@ -115,19 +120,25 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
               updateMenus()
             }
             val vegCb = () => filterCb(Vegan)
+            val vgtCb = () => filterCb(Vegetarian)
+            val mlkCb = () => filterCb(MilkFree)
             val lacCb = () => filterCb(LactoseFree)
             val gluCb = () => filterCb(GlutenFree)
             children = Seq(
               new TextField {
+                val prompt = "search for foods containing this (e.g. fish)"
+                prefWidth = prompt.length * 7
                 text <==> searchField
-                promptText = "search"
+                promptText = prompt
                 onAction = _ => {
                   println(searchField)
                 }
               },
               new Btn(vegCb, "🌿 Vegan", Some(false)),
-              new Btn(lacCb, "🐄 Lactose free", Some(false)),
-              new Btn(gluCb, "🌾 Gluten free", Some(false)),
+              new Btn(vgtCb, "Vegetarian", Some(false)),
+              new Btn(mlkCb, "🐄 Milk free", Some(false)),
+              new Btn(lacCb, "Lactose free", Some(false)),
+              new Btn(gluCb, "🌾 Gluten free", Some(false))
             )
           }
         )
