@@ -8,9 +8,9 @@ abstract class Restaurant(val name: String, val id: String) {
 
   def getURLs(): List[String]
 
-  def getMenuFilePath(): String = "./data/menus/"+getWeek()+"-"+id+".json"
+  def getMenusFilePath(): String = "./data/menus/"+getWeek()+"-"+id+".json"
 
-  def hasMenu(): Boolean = new java.io.File(this.getMenuFilePath).exists
+  def menusFileExists(): Boolean = new java.io.File(this.getMenusFilePath).exists
 
   protected var menus: List[Menu] = List[Menu]()
 
