@@ -12,24 +12,20 @@ import com.lunchlist.util.JsonTools.loadMenus
 object App {
   
   val restaurants: List[Restaurant] = loadRestaurants()
+  var launchGUI: Boolean = false
 
   trait Command {
     def apply(options: String = null): Unit
   }
 
-  def printMenus = restaurants foreach println
-  val print: Command = _ => printMenus
+  def guiCb = launchGUI = true
+  val gui: Command = _ => guiCb
 
-  def launchGUI = LunchListView.start(restaurants)
-  val gui: Command = _ => launchGUI
+  def printCommandsCb() = println("Abvailable commands:\n" + inputToCommand.keys.map("-"+_).reduceLeft(_ + ", " + _))
+  val printCommands: Command = _ => printCommandsCb
 
-  def printAvailableActions() = {
-    println("Abvailable commands:")
-    println(inputToCommand.keys.map("-"+_).reduceLeft(_ + ", " + _))
-  }
-  val printCommands: Command = _ => printAvailableActions
-
-  val printUsage: Command = _ => println("Usage: '-noOptions -withOptions=<options for this command> ...'\nCommands are executed in order.")
+  def printUsageCb() = println("Usage: '-noOptions -withOptions=<options for this command> ...'\nCommands are executed in order.")
+  val printUsage: Command = _ => printUsageCb
 
   def terminate() = {
     print("Invalid command, ")
@@ -40,7 +36,6 @@ object App {
   val invalid: Command = _ => terminate
 
   val inputToCommand: Map[String, Command] = Map(
-    "print"    -> print,
     "gui"      -> gui,
     "commands" -> printCommands,
     "usage"    -> printUsage
@@ -48,11 +43,6 @@ object App {
 
   def handleArgs(args: Array[String]): Unit = {
     val argsSplit = args.foldLeft(" ")(_ + " " + _).split(" -").tail
-    if(argsSplit.isEmpty){
-      println("No actions specified.")
-      printUsage()
-      printCommands()
-    }
     for(command <- argsSplit) {
       val commandSplit = command.split("=")
       if(commandSplit.length < 2) {
@@ -68,5 +58,10 @@ object App {
 
   def main(args: Array[String]): Unit = {
     handleArgs(args)
+    loadMenus(restaurants)
+    if(launchGUI)
+      LunchListView.start(restaurants)
+    else
+      restaurants.foreach(println)
   }
 }

@@ -18,13 +18,10 @@ object JsonTools {
   private val configFilePath = "./data/configurations.json"
   private lazy val configRaw = readFromFile(configFilePath)
 
-  def loadRestaurants(): List[Restaurant] = 
-    for(restaurant <- loadRestaurantsFromConfig(configRaw)) yield {
-      loadMenus(restaurant)
-      restaurant
-    }
+  def loadRestaurants(): List[Restaurant] = getRestaurantsFromConfig(configRaw)
+  def loadMenus(restaurants: List[Restaurant]): Unit = restaurants.foreach(getMenus)
 
-  private def loadRestaurantsFromConfig(rawStr: String): List[Restaurant] = {
+  private def getRestaurantsFromConfig(rawStr: String): List[Restaurant] = {
     val json = Json.parse(rawStr)
 
     def toRestaurantObject(rType: String, name: String, id: String) = rType match {
@@ -50,7 +47,7 @@ object JsonTools {
     }
   }
 
-  private def loadMenus(restaurant: Restaurant): Unit = restaurant match {
+  private def getMenus(restaurant: Restaurant): Unit = restaurant match {
     case fazer: FazerRestaurant =>
       loadFazerMenus(restaurant)
     case sodexo: SodexoRestaurant =>
