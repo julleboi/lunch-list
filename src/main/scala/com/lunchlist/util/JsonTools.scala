@@ -1,7 +1,5 @@
 package com.lunchlist.util
 
-import collection.mutable.ListBuffer
-
 import concurrent._
 import concurrent.duration._
 import ExecutionContext.Implicits.global
@@ -20,40 +18,43 @@ object JsonTools {
   private val configFilePath = "./data/configurations.json"
   private lazy val configRaw = readFromFile(configFilePath)
 
-  def loadRestaurants() = restaurantsToList(configRaw)
+  def loadRestaurants(): List[Restaurant] = 
+    for(restaurant <- loadRestaurantsFromConfig(configRaw)) yield {
+      loadMenus(restaurant)
+      restaurant
+    }
 
-  def loadMenus(restaurant: Restaurant): Unit = restaurant match {
+  private def loadRestaurantsFromConfig(rawStr: String): List[Restaurant] = {
+    val json = Json.parse(rawStr)
+
+    def toRestaurantObject(rType: String, name: String, id: String) = rType match {
+      case "fazer" => { 
+        new FazerRestaurant(name, id)
+      }
+      case "sodexo" => { 
+        new SodexoRestaurant(name, id)
+      }
+      case unknownType => 
+        UnknownRestaurant
+    }
+
+    for(restaurant <- json.as[List[Map[String, JsValue]]]) 
+    yield {
+      val rType = restaurant("type").as[String]
+      val name = restaurant("name").as[String]
+      val id = restaurant("id").as[String]
+      val fav = restaurant("favorite").as[Boolean]
+      val ret = toRestaurantObject(rType, name, id)
+      ret.setFavorite(fav)
+      ret
+    }
+  }
+
+  private def loadMenus(restaurant: Restaurant): Unit = restaurant match {
     case fazer: FazerRestaurant =>
       loadFazerMenus(restaurant)
     case sodexo: SodexoRestaurant =>
       loadSodexoMenus(restaurant)
-  }
-
-  private def restaurantsToList(rawStr: String): List[Restaurant] = {
-    val json = Json.parse(rawStr)
-    val restaurants: ListBuffer[Restaurant] = new ListBuffer()
-    val restaurantsObjects = json.as[List[Map[String, String]]]
-    for(restaurant <- restaurantsObjects) {
-      val rType = restaurant("type")
-      val name = restaurant("name")
-      val id = restaurant("id")
-      val fav = Try(restaurant("favorite").toBoolean).getOrElse(false)
-      rType match {
-        case "fazer" => { 
-          val r = new FazerRestaurant(name, id)
-          r.setFavorite(fav)
-          restaurants += r
-        }
-        case "sodexo" => { 
-          val r = new SodexoRestaurant(name, id)
-          r.setFavorite(fav)
-          restaurants += r
-        }
-        case unknownType => 
-          println(s"Cannot create a Restaurant-object for a Restaurant of type '$rType'")
-      }
-    }
-    return restaurants.toList
   }
 
   private def loadFazerMenus(restaurant: Restaurant): Unit = {
@@ -62,21 +63,26 @@ object JsonTools {
       case Some(menu) => {
         println(s"Found menu for restaurant '${restaurant.name}'")
         val json = Json.parse(menu)
-        val menus: ListBuffer[Menu] = new ListBuffer[Menu]()
-        val menusObjects = (json \ "MenusForDays").as[List[JsObject]]
-        for(menu <- menusObjects) {
-          val dateStr: String = (menu \ "Date").as[String]
-          val date = stringToDate(dateStr)
-          val day = getDay(date)
-          val foodsBuffer = new ListBuffer[Food]()
-          val foodsObjects = (menu \ "SetMenus").as[List[JsObject]]
-          for(food <- foodsObjects) {
+
+        def foodsObjectToFoodList(foods: List[JsObject]): List[Food] = 
+          for(food <- foods)
+          yield {
             val title = Try(food("Name").as[String]).getOrElse("Lunch")
-            foodsBuffer += new Food(title, food("Components").as[List[String]].map(x => new Component(x)))
+            val components = for(name <- food("Components").as[List[String]]) yield new Component(name)
+            new Food(title, components)
           }
-          menus += new Menu(day, foodsBuffer.toList)
-        }
-        restaurant.setMenus(menus.toList)
+
+        val menus: List[Menu] = 
+          for(menu <- (json \ "MenusForDays").as[List[JsObject]]) yield {
+            val foods = (menu \ "SetMenus").as[List[JsObject]]
+            val foodsList = foodsObjectToFoodList(foods)
+            val dateStr = (menu \ "Date").as[String]
+            val date = stringToDate(dateStr)
+            val day = getDay(date)
+            new Menu(day, foodsList)
+          }
+
+        restaurant.setMenus(menus)
       }
       case None => println(s"Wasn't able to fetch menu for restaurant '${restaurant.name}'")
     }
@@ -88,37 +94,31 @@ object JsonTools {
       case Some(menu) => {
         println(s"Found menu for restaurant '${restaurant.name}'")
         val json = Json.parse(menu)
-        val menus: ListBuffer[Menu] = new ListBuffer[Menu]()
-        val menusObjects = (json \ "menus").as[List[JsObject]]
-        var n = 0;
-        for(menu <- menusObjects) {
-          val foodsBuffer = new ListBuffer[Food]()
-          val foodsObjects = (menu \ "courses").as[List[JsObject]]
-          for(food <- foodsObjects) {
-            val name = "Lunch " + (foodsBuffer.length + 1)
-            val title = food("title_en").as[String]
-            val properties = Try("("+food("properties").as[String]+")").getOrElse("")
+        val days = List("Monday", "Tuesday", "wednesday", "Thursday", "Friday", "Saturday").iterator
+
+        def foodsObjectToFoodsList(foods: List[JsObject]): List[Food] =
+          for(food <- foods)
+          yield {
+            val title = Try(food("title_en").as[String]).getOrElse("")
+            val properties = Try(" ("+food("properties").as[String]+")").getOrElse("")
             val components = List(new Component(title+properties))
-            foodsBuffer += new Food(name, components)
+            new Food("Lunch", components)
           }
-          menus += new Menu(getDay_(n), foodsBuffer.toList)
-          n += 1
-        }
-        restaurant.setMenus(menus.toList)
+
+        val menus: List[Menu] = 
+          for {
+            menu <- (json \ "menus").as[List[JsObject]]
+            if days.hasNext
+          } yield {
+            val foods = (menu \ "courses").as[List[JsObject]]
+            val foodsList = foodsObjectToFoodsList(foods)
+            new Menu(days.next, foodsList)
+          }
+
+        restaurant.setMenus(menus)
       }
       case None => println(s"Wasn't able to fetch menu for restaurant '${restaurant.name}'")
     }
-  }
-
-  private def getDay_(n: Int): String = n match {
-    case 0 => "Monday"
-    case 1 => "Tuesday"
-    case 2 => "Wednesday"
-    case 3 => "Thursday"
-    case 4 => "Friday"
-    case 5 => "Saturday"
-    case 6 => "Sunday"
-    case _ => "INVALID DAY"
   }
 
   private def getRawMenus(restaurant: Restaurant): Option[String] = {
@@ -149,17 +149,19 @@ object JsonTools {
     var updateNeeded = false
     val json = Json.parse(configRaw)
     val ids = restaurants.map(_.id)
-    def updateFavorite(configs: Map[String, String]): Map[String, String] = {
-      val id = configs("id")
+
+    def updateFavorite(configs: Map[String, JsValue]): Map[String, JsValue] = {
+      val id = configs("id").as[String]
+      val isFav = configs("favorite").as[Boolean]
       if(ids.contains(id)) {
-        updateNeeded = true
-        val newValue = restaurants.find(_.id == id).map(_.isFavorite.toString).getOrElse("false")
-        configs + ("favorite" -> newValue)
-      } else {
-        configs
+        val newValue = (restaurants.find(_.id == id).map(_.isFavorite).getOrElse(false))
+        if(newValue != isFav)
+          return configs + ("favorite" -> Json.toJson(newValue))
       }
+      configs
     }
-    val updated = json.as[List[Map[String, String]]].map(updateFavorite)
+
+    val updated = json.as[List[Map[String, JsValue]]].map(updateFavorite)
     if(updateNeeded) {
       val newJson = Json.toJson(updated)
       val raw = Json.prettyPrint(newJson)

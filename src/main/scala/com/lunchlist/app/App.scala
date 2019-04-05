@@ -17,9 +17,6 @@ object App {
     def apply(options: String = null): Unit
   }
 
-  def loadAllMenus = restaurants.map(r => Future{loadMenus(r)}).foreach(Await.result(_, 3 seconds))
-  val load: Command = _ => loadAllMenus
-
   def printMenus = restaurants foreach println
   val print: Command = _ => printMenus
 
@@ -43,7 +40,6 @@ object App {
   val invalid: Command = _ => terminate
 
   val inputToCommand: Map[String, Command] = Map(
-    "load"     -> load,
     "print"    -> print,
     "gui"      -> gui,
     "commands" -> printCommands,

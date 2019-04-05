@@ -38,3 +38,5 @@ abstract class Restaurant(val name: String, val id: String) {
   }
   
 }
+
+case object UnknownRestaurant extends Restaurant("Unknown", "") { def getURLs() = List("") }

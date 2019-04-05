@@ -2,35 +2,35 @@
   "type" : "fazer",
   "name" : "A Bloc",
   "id" : "3087",
-  "favorite" : "false"
+  "favorite" : false
 }, {
   "type" : "fazer",
   "name" : "Dipoli",
   "id" : "3101",
-  "favorite" : "false"
+  "favorite" : false
 }, {
   "type" : "fazer",
   "name" : "Alvari",
   "id" : "0190",
-  "favorite" : "false"
+  "favorite" : false
 }, {
   "type" : "fazer",
   "name" : "TUAS",
   "id" : "0199",
-  "favorite" : "false"
+  "favorite" : false
 }, {
   "type" : "sodexo",
   "name" : "Aalto Tietotekniikantalo",
   "id" : "142",
-  "favorite" : "false"
+  "favorite" : false
 }, {
   "type" : "sodexo",
   "name" : "Aalto Valimo",
   "id" : "13918",
-  "favorite" : "false"
+  "favorite" : false
 }, {
   "type" : "sodexo",
   "name" : "Aalto Konetekniikka",
   "id" : "140",
-  "favorite" : "false"
+  "favorite" : false
 } ]

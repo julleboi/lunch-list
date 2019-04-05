@@ -216,7 +216,6 @@ object LunchListView {
       val view = new LunchListView(restaurants)
       view.showAndWait()
       setFavorites(restaurants)
-      Platform.exit()
     })
   }
 }
