@@ -6,12 +6,11 @@ import ExecutionContext.Implicits.global
 
 import com.lunchlist.app.gui.LunchListView
 import com.lunchlist.restaurant._
-import com.lunchlist.util.JsonTools.loadRestaurants
-import com.lunchlist.util.JsonTools.loadMenus
+import com.lunchlist.util.JsonTools.{getRestaurants, loadMenus}
 
 object App {
   
-  val restaurants: List[Restaurant] = loadRestaurants()
+  val restaurants: List[Restaurant] = getRestaurants()
   var launchGUI: Boolean = false
 
   trait Command {
@@ -27,13 +26,13 @@ object App {
   def printUsageCb() = println("Usage: '-noOptions -withOptions=<options for this command> ...'\nCommands are executed in order.")
   val printUsage: Command = _ => printUsageCb
 
-  def terminate() = {
+  def invalidCb() = {
     print("Invalid command, ")
     printCommands()
     println("Terminating.")
-    sys.exit(1)
+    sys.exit(0)
   }
-  val invalid: Command = _ => terminate
+  val invalid: Command = _ => invalidCb
 
   val inputToCommand: Map[String, Command] = Map(
     "gui"      -> gui,

@@ -11,14 +11,17 @@ import play.api.libs.json._
 import com.lunchlist.restaurant._
 import com.lunchlist.restaurant.Menu._
 import com.lunchlist.util.DateTools.{getDay, stringToDate}
-import com.lunchlist.util.Misc.{readFromFile, readFromURL, writeToFile}
+import com.lunchlist.util.Misc.{readFromFile, readFromURL, writeToFile, configFileName}
 
 object JsonTools {
 
-  private val configFilePath = "./data/configurations.json"
-  private lazy val configRaw = readFromFile(configFilePath)
+  private lazy val configRaw: Option[String] = readFromFile(configFileName)
 
-  def loadRestaurants(): List[Restaurant] = getRestaurantsFromConfig(configRaw)
+  def getRestaurants(): List[Restaurant] = 
+    configRaw
+      .map(c => getRestaurantsFromConfig(c))
+      .getOrElse(List[Restaurant]())
+       
   def loadMenus(restaurants: List[Restaurant]): Unit = restaurants.foreach(getMenus)
 
   private def getRestaurantsFromConfig(rawStr: String): List[Restaurant] = {
@@ -118,51 +121,64 @@ object JsonTools {
     }
   }
 
-  private def getRawMenus(restaurant: Restaurant): Option[String] = {
-    if(restaurant.menusFileExists) {
-      val raw = readFromFile(restaurant.getMenusFilePath)
-      return Some(raw)
-    } else {
-      val urls = restaurant.getURLs()
-      val futures: List[Future[String]] = urls.map(url => Future { readFromURL(url) })
-      val result: String = futures.map(Await.result(_, 3 seconds)).mkString(",")
-      def prettify(rawStr: String) = Json.prettyPrint(Json.parse(rawStr))
-      val raw = {
-        if(urls.length > 1) {
-          val start = """{"menus":["""
-          val end = "]}"
-          prettify(start + result + end)
-        } else {
-          prettify(result)
+  private def getRawMenus(restaurant: Restaurant): Option[String] =
+    Try {
+      if(restaurant.menusFileExists())
+        readFromFile(restaurant.menusFilePath).get
+      else {
+        val urls: List[String] = restaurant.getURLs()
+        val futures: List[Future[Option[String]]] = urls.map(url => Future {readFromURL(url)})
+
+        val results: String = 
+          futures
+            .map(Await.result(_, 3 seconds))
+            .collect {
+              case Some(res: String) => res
+            }
+            .mkString(",")
+
+        def prettify(rawStr: String): String = Json.prettyPrint(Json.parse(rawStr))
+
+        val raw: String = {
+          if(urls.length > 1) {
+            val start = """{"menus":["""
+            val end = "]}"
+            prettify(start + results + end)
+          } else {
+            prettify(results)
+          }
         }
+
+        writeToFile(raw, restaurant.menusFilePath)
+        raw
       }
-      writeToFile(raw, restaurant.getMenusFilePath)
-      return Some(raw)
-    }
-    return None
-  }
+    } toOption
 
   def setFavorites(restaurants: List[Restaurant]): Unit = {
     var updateNeeded = false
-    val json = Json.parse(configRaw)
-    val ids = restaurants.map(_.id)
+    for(raw <- configRaw) {
+      val json = Json.parse(raw)
+      val ids = restaurants.map(_.id)
 
-    def updateFavorite(configs: Map[String, JsValue]): Map[String, JsValue] = {
-      val id = configs("id").as[String]
-      val isFav = configs("favorite").as[Boolean]
-      if(ids.contains(id)) {
-        val newValue = (restaurants.find(_.id == id).map(_.isFavorite).getOrElse(false))
-        if(newValue != isFav)
-          return configs + ("favorite" -> Json.toJson(newValue))
+      def updateFavorite(configs: Map[String, JsValue]): Map[String, JsValue] = {
+        val id = configs("id").as[String]
+        val isFav = configs("favorite").as[Boolean]
+        if(ids.contains(id)) {
+          val newValue = (restaurants.find(_.id == id).map(_.isFavorite).getOrElse(false))
+          if(newValue != isFav) {
+            updateNeeded = true
+            return configs + ("favorite" -> Json.toJson(newValue))
+          }
+        }
+        return configs
       }
-      configs
-    }
 
-    val updated = json.as[List[Map[String, JsValue]]].map(updateFavorite)
-    if(updateNeeded) {
-      val newJson = Json.toJson(updated)
-      val raw = Json.prettyPrint(newJson)
-      writeToFile(raw, configFilePath)
+      val updated = json.as[List[Map[String, JsValue]]].map(updateFavorite)
+      if(updateNeeded) {
+        val newJson = Json.toJson(updated)
+        val raw = Json.prettyPrint(newJson)
+        writeToFile(raw, configFileName)
+      }
     }
   }
   

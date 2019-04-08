@@ -2,15 +2,16 @@ package com.lunchlist.restaurant
 
 import io.Source
 
+import com.lunchlist.util.Misc.{fileExists}
 import com.lunchlist.util.DateTools.{getWeek, getDay}
 
 abstract class Restaurant(val name: String, val id: String) {
 
   def getURLs(): List[String]
 
-  def getMenusFilePath(): String = "./data/menus/"+getWeek()+"-"+id+".json"
+  val menusFilePath: String = "menus/"+getWeek()+"-"+id+".json"
 
-  def menusFileExists(): Boolean = new java.io.File(this.getMenusFilePath).exists
+  def menusFileExists(): Boolean = fileExists(menusFilePath)
 
   protected var menus: List[Menu] = List[Menu]()
 

@@ -205,13 +205,6 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
 object LunchListView {
   def start(restaurants: List[Restaurant]) = {
     new JFXPanel()
-
-    // to fix blurry fonts
-    System.setProperty("prism.lcdtext", "false")
-
-    // load custom font
-    Font.loadFont(new java.io.FileInputStream("./data/montserrat-light.ttf"), 14)
-    
     Platform.runLater({
       val view = new LunchListView(restaurants)
       view.showAndWait()
