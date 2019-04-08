@@ -20,17 +20,21 @@ object App {
   def guiCb = launchGUI = true
   val gui: Command = _ => guiCb
 
-  def printCommandsCb() = println("Abvailable commands:\n" + inputToCommand.keys.map("-"+_).reduceLeft(_ + ", " + _))
+  def printCommandsCb() = {
+    println("Abvailable commands:\n" + inputToCommand.keys.map("-" + _).mkString(", "))
+    sys.exit(0)
+  }
   val printCommands: Command = _ => printCommandsCb
 
-  def printUsageCb() = println("Usage: '-noOptions -withOptions=<options for this command> ...'\nCommands are executed in order.")
+  def printUsageCb() = {
+    println("Usage: '-noOptions -withOptions=<options for this command> ...'")
+    sys.exit(0)
+  }
   val printUsage: Command = _ => printUsageCb
 
   def invalidCb() = {
     print("Invalid command, ")
     printCommands()
-    println("Terminating.")
-    sys.exit(0)
   }
   val invalid: Command = _ => invalidCb
 
@@ -41,15 +45,19 @@ object App {
   ).withDefaultValue(invalid)
 
   def handleArgs(args: Array[String]): Unit = {
-    val argsSplit = args.foldLeft(" ")(_ + " " + _).split(" -").tail
+    val argsSplit = 
+      args
+        .mkString
+        .split("-")
+        .filter(_ != "")
     for(command <- argsSplit) {
       val commandSplit = command.split("=")
       if(commandSplit.length < 2) {
-        val commandName = command.toLowerCase()
+        val commandName = command.toLowerCase
         inputToCommand(commandName)()
       } else {
-        val commandName = commandSplit.head.toLowerCase()
-        val options = commandSplit.tail.reduceLeft(_ + _)
+        val commandName = commandSplit.head.toLowerCase
+        val options = commandSplit.tail.mkString
         inputToCommand(commandName)(options)
       }
     }

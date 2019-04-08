@@ -16,10 +16,10 @@ class Component(val name: String = "undefined") {
     def parseProps(str: String): List[String] =
       str
         .dropWhile((c: Char) => c != '(')
-          .takeWhile((c: Char) => c != ')')
-            .split(",")
-              .map((str: String) => str.trim)
-                .toList
+        .takeWhile((c: Char) => c != ')')
+        .split(",")
+        .map((str: String) => str.trim)
+        .toList
 
     def matchProps(str: String): List[Property] = str.toLowerCase() match {
       case "g"    => List(GlutenFree)
