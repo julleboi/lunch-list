@@ -10,7 +10,7 @@ import com.lunchlist.util.JsonTools.{getRestaurants, loadMenus}
 
 object App {
   
-  val restaurants: List[Restaurant] = getRestaurants()
+  var restaurants: List[Restaurant] = getRestaurants()
   var launchGUI: Boolean = false
 
   trait Command {
@@ -27,7 +27,7 @@ object App {
   val printCommands: Command = _ => printCommandsCb
 
   def printUsageCb() = {
-    println("Usage: '-noOptions -withOptions=<options for this command> ...'")
+    println("Usage: '-r=<alvari,dipoli,...> -gui (if you want GUI)'")
     sys.exit(0)
   }
   val printUsage: Command = _ => printUsageCb
@@ -38,7 +38,20 @@ object App {
   }
   val invalid: Command = _ => invalidCb
 
+  def filterRestaurantsCb(restaurantsAsString: String) = {
+    val restaurantsNames = 
+      restaurantsAsString
+        .split(",")
+        .map(_.trim.toLowerCase)
+    
+    restaurants = 
+      restaurants
+        .filter((r: Restaurant) => restaurantsNames.exists(_ == r.name.toLowerCase))
+  }
+  val filterRestaurants: Command = (s: String) => filterRestaurantsCb(s)
+
   val inputToCommand: Map[String, Command] = Map(
+    "r"        -> filterRestaurants,
     "gui"      -> gui,
     "commands" -> printCommands,
     "usage"    -> printUsage
@@ -65,10 +78,10 @@ object App {
 
   def main(args: Array[String]): Unit = {
     handleArgs(args)
-    loadMenus(restaurants)
+    loadMenus(restaurants).foreach(future => Await.result(future, 3 seconds))
     if(launchGUI)
       LunchListView.start(restaurants)
     else
-      restaurants.foreach(println)
+      restaurants foreach println
   }
 }

@@ -2,11 +2,15 @@ package com.lunchlist.app.gui
 
 import javafx.embed.swing.JFXPanel
 
+import collection.mutable.ListBuffer
+
 import scalafx.application.Platform
 import scalafx.beans.property.BooleanProperty
 import scalafx.beans.property.BooleanProperty._
 import scalafx.beans.property.StringProperty
 import scalafx.beans.property.StringProperty._
+import scalafx.beans.property.ObjectProperty
+import scalafx.beans.property.ObjectProperty._
 import scalafx.geometry.{Insets, Pos}
 import scalafx.stage.Stage
 import scalafx.scene.Scene
@@ -25,41 +29,51 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
     List("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
       .dropWhile(_ != getDay())
   private val day = StringProperty(getDay())
-
+  
   private val restaurantByName: Map[String, Restaurant] =
-    restaurants.map(r => (r.name, r))
+    restaurants
+      .map(r => (r.name, r))
       .toMap
   
   private val isVisible: Map[String, BooleanProperty] = 
-    restaurants.map(r => (r.name, BooleanProperty(true)))
+    restaurants
+      .map(r => (r.name, BooleanProperty(true)))
       .toMap
-        .withDefaultValue(BooleanProperty(false))
+      .withDefaultValue(BooleanProperty(false))
 
   private val isFavorite: Map[String, BooleanProperty] = 
-    restaurants.map(r => (r.name, BooleanProperty(r.isFavorite())))
+    restaurants
+      .map(r => (r.name, BooleanProperty(r.isFavorite())))
       .toMap
-        .withDefaultValue(BooleanProperty(false))
+      .withDefaultValue(BooleanProperty(false))
 
   private def getMenu(r: Restaurant): String = 
     r.getMenus()
       .find(menu => menu.day == day.get)
-        .map(_.toString())
-          .getOrElse("")
+      .map(_.toString())
+      .getOrElse("")
   private val menuText: Map[String, StringProperty] = 
-    restaurants.map(r => (r.name, StringProperty(getMenu(r))))
+    restaurants
+      .map(r => (r.name, StringProperty(getMenu(r))))
       .toMap
-        .withDefaultValue(StringProperty(""))
+      .withDefaultValue(StringProperty(""))
   private def updateMenus(): Unit = {
     for((key, value) <- menuText) {
       val restaurant = restaurantByName(key)
       val menu = getMenu(restaurant)
-      value.set(menu)
+      if(menu.trim.nonEmpty) {
+        isVisible(key).set(true)
+      } else {
+        isVisible(key).set(false)
+      }
+      if(menu != value)
+        value.set(menu)
     }
   }
 
   private val searchField: StringProperty = StringProperty("")
 
-  private val filtered = collection.mutable.ListBuffer[Property]()
+  private val filtered = ListBuffer[Property]()
   private def filterProperty(prop: Property): Unit = {
     if(filtered.contains(prop)) {
       filtered -= prop

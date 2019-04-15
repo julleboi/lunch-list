@@ -18,11 +18,17 @@ object JsonTools {
   private lazy val configRaw: Option[String] = readFromFile(configFileName)
 
   def getRestaurants(): List[Restaurant] = 
-    configRaw
-      .map(c => getRestaurantsFromConfig(c))
-      .getOrElse(List[Restaurant]())
+    configRaw match {
+      case Some(configRaw) => getRestaurantsFromConfig(configRaw)
+      case _ => {
+        println("Config file couldn't be read.")
+        List[Restaurant]()
+      }
+    }
        
-  def loadMenus(restaurants: List[Restaurant]): Unit = restaurants.foreach(getMenus)
+  def loadMenus(restaurants: List[Restaurant]): List[Future[Unit]] = 
+    restaurants
+      .map((r: Restaurant) => Future{getMenus(r)})
 
   private def getRestaurantsFromConfig(rawStr: String): List[Restaurant] = {
     val json = Json.parse(rawStr)
