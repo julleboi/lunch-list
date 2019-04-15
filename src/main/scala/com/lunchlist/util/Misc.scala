@@ -3,7 +3,7 @@ package com.lunchlist.util
 import io.Source
 import util.Try
 
-import java.io.PrintWriter
+import java.io.{ PrintWriter, File }
 
 object Misc {
 
@@ -30,15 +30,20 @@ object Misc {
         close
       }
     })
-
-  private val path: String = System.getProperty("user.home") + "/.lunch-list/"
   
-  def fileExists(suffix: String): Boolean = new java.io.File(path + suffix).exists
+  def clearMenus(): Unit = {
+    val menusDir = path+"menus/"
+    val menusFolder = new File(menusDir)
+    val menusFiles = menusFolder.listFiles
+    menusFiles.foreach(f => if(!f.delete) println("Unable to delete "+f.getAbsolutePath))
+  }
+
+  def fileExists(suffix: String): Boolean = new File(path + suffix).exists
 
   private def getFilePath(suffix: String): Option[String] = 
     Try {
       val fullPath = path + suffix
-      val file = new java.io.File(fullPath)
+      val file = new File(fullPath)
       if(!file.exists) {
         if(!file.getParentFile.exists)
           file.getParentFile.mkdirs
@@ -50,8 +55,8 @@ object Misc {
     } toOption
 
 
+  private val path: String = System.getProperty("user.home") + "/.lunch-list/"
   val configFileName: String = "configurations.json"
-
   private lazy val defaultConfig = 
 """[ {
   "type" : "fazer",

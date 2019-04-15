@@ -6,7 +6,8 @@ import ExecutionContext.Implicits.global
 
 import com.lunchlist.app.gui.LunchListView
 import com.lunchlist.restaurant._
-import com.lunchlist.util.JsonTools.{getRestaurants, loadMenus}
+import com.lunchlist.util.JsonTools.{ getRestaurants, loadMenus }
+import com.lunchlist.util.Misc.{ clearMenus }
 
 object App {
   
@@ -50,8 +51,12 @@ object App {
   }
   val filterRestaurants: Command = (s: String) => filterRestaurantsCb(s)
 
+  def clearCb() = clearMenus()
+  val clear: Command = _ => clearCb
+
   val inputToCommand: Map[String, Command] = Map(
     "r"        -> filterRestaurants,
+    "clear"    -> clear,
     "gui"      -> gui,
     "commands" -> printCommands,
     "usage"    -> printUsage
