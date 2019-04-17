@@ -164,6 +164,7 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
           hgap = 10
           vgap = 10
           prefColumns = 3
+          updateMenus()
           children = 
             restaurants
               .sortWith(_.isFavorite() && !_.isFavorite())
