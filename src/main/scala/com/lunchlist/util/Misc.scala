@@ -57,7 +57,7 @@ object Misc {
 
   private val path: String = System.getProperty("user.home") + "/.lunch-list/"
   val configFileName: String = "configurations.json"
-  private lazy val defaultConfig = 
+  lazy val defaultConfig = 
 """[ {
   "type" : "fazer",
   "name" : "A Bloc",
