@@ -1,4 +1,4 @@
-import com.lunchlist.restaurant._
+import com.lunchlist.restaurant.menu._
 
 import org.scalatest._
 

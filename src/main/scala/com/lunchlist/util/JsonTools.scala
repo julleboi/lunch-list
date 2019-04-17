@@ -9,7 +9,7 @@ import scala.util.Try
 import play.api.libs.json._
 
 import com.lunchlist.restaurant._
-import com.lunchlist.restaurant.Menu._
+import com.lunchlist.restaurant.menu._
 import com.lunchlist.util.DateTools.{getDay, stringToDate}
 import com.lunchlist.util.Misc.{readFromFile, readFromURL, writeToFile, configFileName}
 

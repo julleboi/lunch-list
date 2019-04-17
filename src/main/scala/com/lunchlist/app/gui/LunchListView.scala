@@ -17,7 +17,7 @@ import scalafx.scene.control.{ScrollPane, Label, TextField}
 import scalafx.scene.layout.{BorderPane, TilePane, HBox, VBox}
 
 import com.lunchlist.restaurant._
-import com.lunchlist.restaurant.Menu._
+import com.lunchlist.restaurant.menu._
 import com.lunchlist.util.DateTools.{getDate, getDay, getWeek}
 import com.lunchlist.util.JsonTools.setFavorites
 

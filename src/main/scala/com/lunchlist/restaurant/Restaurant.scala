@@ -1,5 +1,6 @@
 package com.lunchlist.restaurant
 
+import com.lunchlist.restaurant.menu._
 import com.lunchlist.util.Misc.{fileExists}
 import com.lunchlist.util.DateTools.{getWeek, getDay}
 
