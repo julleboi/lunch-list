@@ -28,7 +28,8 @@ class Menu(val day: String = "", private val allFoods: List[Food] = List[Food]()
       "\n  - " + 
       f.components
         .map(_.name)
-        .mkString("\n  - ")
+        .mkString("\n  - ") +
+      "\n"
     ).mkString("\n")
   } 
 
