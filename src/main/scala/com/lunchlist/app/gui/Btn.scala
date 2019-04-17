@@ -8,7 +8,7 @@ private class Btn(cb: () => Unit, name: String, toggle: Option[Boolean] = None) 
   
   private val isToggleable = toggle.isDefined
   private var toggled = toggle.getOrElse(false)
-  private def isToggled() = isToggleable && toggled
+  private def isToggled = isToggleable && toggled
 
   private val style_ = 
     """
@@ -21,13 +21,13 @@ private class Btn(cb: () => Unit, name: String, toggle: Option[Boolean] = None) 
   private val hoveredStyle = style_.concat("-fx-background-color: #dddddd;")
   private val toggledStyle = style_.concat("-fx-background-color: #cccccc;")
 
-  private val s = StringProperty(if(isToggled()) toggledStyle else normalStyle)
+  private val s = StringProperty(if(isToggled) toggledStyle else normalStyle)
 
   style <== s
   text = name
   
   onMouseEntered = _ => s.set(hoveredStyle)
-  onMouseExited = _ => s.set(if(isToggled()) toggledStyle else normalStyle)
+  onMouseExited = _ => s.set(if(isToggled) toggledStyle else normalStyle)
   onAction = _ => {
     cb()
     if(isToggleable)
