@@ -49,7 +49,11 @@ object Menu {
     if(str.isEmpty)
       src
     else
-      src.filter(_.components.exists(c => clean(c.name).contains(str)))
+      src
+        .filter(f => 
+          clean(f.name).contains(str) || 
+          f.components.exists(c => clean(c.name).contains(str))
+        )
   }
 
 }
