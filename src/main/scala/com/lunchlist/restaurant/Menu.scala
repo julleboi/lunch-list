@@ -47,15 +47,38 @@ case class Food(val name: String, val components: List[Component]) {
 
 class Menu(val day: String = "", private val allFoods: List[Food] = List[Food]()) {
 
-  private var foods: List[Food] = allFoods
-
+  private var foods: List[Food] = this.allFoods
   def getFoods(): List[Food] = this.foods
 
+  private var filteredProps: List[Property] = List[Property]()
+  private var filteredStr: String = ""
+
   def filterForProperties(filteredProps: List[Property]): Unit = {
+    this.filteredProps = filteredProps
+    val filteredForStr = filterString(this.filteredStr, this.allFoods)
+    this.foods = filterProperties(filteredProps, filteredForStr)
+  }
+
+  private def filterProperties(filteredProps: List[Property], src: List[Food]): List[Food] = {
     if(filteredProps.isEmpty)
-      foods = allFoods
+      src
     else
-      foods = allFoods.filter(_.containsFilteredProps(filteredProps))
+      src.filter(_.containsFilteredProps(filteredProps))
+  }
+
+  def filterForString(str: String): Unit = {
+    this.filteredStr = str
+    val filteredForProps = filterProperties(this.filteredProps, this.allFoods)
+    this.foods = filterString(str, filteredForProps)
+  }
+
+  private def filterString(s: String, src: List[Food]): List[Food] = {
+    def clean(str: String) = str.toLowerCase.trim
+    val str = clean(s)
+    if(str.isEmpty)
+      src
+    else
+      src.filter(_.components.exists(c => clean(c.name).contains(str)))
   }
 
   override def toString(): String = {

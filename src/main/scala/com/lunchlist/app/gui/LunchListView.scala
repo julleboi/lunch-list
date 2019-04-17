@@ -50,11 +50,13 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
       .find(menu => menu.day == day.get)
       .map(_.toString())
       .getOrElse("")
+
   private val menuText: Map[String, StringProperty] = 
     restaurants
       .map(r => (r.name, StringProperty(getMenu(r))))
       .toMap
       .withDefaultValue(StringProperty(""))
+
   private def updateMenus(): Unit = {
     for((key, value) <- menuText) {
       val restaurant = restaurantByName(key)
@@ -72,6 +74,7 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
   private val searchField: StringProperty = StringProperty("")
 
   private val filtered = ListBuffer[Property]()
+  
   private def filterProperty(prop: Property): Unit = {
     if(filtered.contains(prop)) {
       filtered -= prop
@@ -143,7 +146,13 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
                 text <==> searchField
                 promptText = prompt
                 onAction = _ => {
-                  println(searchField)
+                  for {
+                    restaurant <- restaurants
+                    menu <- restaurant.getMenus
+                  } {
+                    menu.filterForString(searchField.get())
+                  }
+                  updateMenus()
                 }
               },
               new Btn(vegCb, "🌿 Vegan", Some(false)),
