@@ -1,6 +1,6 @@
 package com.lunchlist.util
 
-import io.Source
+import scala.io.Source
 import util.Try
 
 import java.io.{ PrintWriter, File }
