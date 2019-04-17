@@ -1,7 +1,5 @@
 package com.lunchlist.restaurant
 
-import collection.mutable.ArrayBuffer
-
 class Property(val name: String)
 case class OtherProperty(propName: String) extends Property(propName)
 case object GlutenFree extends Property("gluten-free")
