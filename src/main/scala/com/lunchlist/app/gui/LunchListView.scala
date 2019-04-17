@@ -175,7 +175,7 @@ class LunchListView(private val restaurants: List[Restaurant]) extends Stage {
           children = 
             restaurants
               .sortWith(_.isFavorite() && !_.isFavorite())
-                .map(menuView)
+              .map(menuView)
         }
       }
     }
