@@ -3,6 +3,7 @@ import com.lunchlist.util.JsonTools
 import com.lunchlist.util.Misc.defaultConfig
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 import java.net.{ InetAddress, URL, URLConnection }
 import java.util.Map
@@ -15,7 +16,10 @@ class RestaurantTest extends FlatSpec {
   val getRestaurantsFromConfig = PrivateMethod[List[Restaurant]]('getRestaurantsFromConfig)
   val restaurants: List[Restaurant] = JsonTools invokePrivate getRestaurantsFromConfig(defaultConfig)
 
-  def isReachable(url: String): Boolean = InetAddress.getByName(url).isReachable(6000)
+  def isReachable(url: String): Boolean = 
+    Try {
+      InetAddress.getByName(url).isReachable(6000)
+    } getOrElse(false)
 
   def isFound(url: String): Boolean = {
     val conn = new URL(url).openConnection()
@@ -38,6 +42,8 @@ class RestaurantTest extends FlatSpec {
       case Some(r) => {
         if(isReachable("www.fazerfoodco.fi")) {
           assert(r.getURLs.forall(isFound(_)))
+        } else {
+          assert(true)
         }
       }
       case None => assert(false)
@@ -58,6 +64,8 @@ class RestaurantTest extends FlatSpec {
       case Some(r) => {
         if(isReachable("www.sodexo.fi")) {
           assert(r.getURLs.forall(isFound(_)))
+        } else {
+          assert(true)
         }
       }
       case None => assert(false)
