@@ -10,7 +10,7 @@ case object MilkFree extends Property("milk-free")
 case object Vegan extends Property("vegan")
 case object Vegetarian extends Property("vegetarian")
 
-class Component(val name: String = "undefined") {
+case class Component(val name: String = "undefined") {
 
   val properties: List[Property] = {
     def parseProps(str: String): List[String] =
@@ -34,7 +34,7 @@ class Component(val name: String = "undefined") {
 
 }
 
-class Food(val name: String, val components: List[Component]) {
+case class Food(val name: String, val components: List[Component]) {
 
   def containsFilteredProps(filteredProps: List[Property]) = {
     val props = this.components.map(_.properties)
@@ -48,6 +48,8 @@ class Food(val name: String, val components: List[Component]) {
 class Menu(val day: String = "", private val allFoods: List[Food] = List[Food]()) {
 
   private var foods: List[Food] = allFoods
+
+  def getFoods(): List[Food] = this.foods
 
   def filterForProperties(filteredProps: List[Property]): Unit = {
     if(filteredProps.isEmpty)
