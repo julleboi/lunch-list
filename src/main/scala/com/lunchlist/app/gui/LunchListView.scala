@@ -9,8 +9,6 @@ import scalafx.beans.property.BooleanProperty
 import scalafx.beans.property.BooleanProperty._
 import scalafx.beans.property.StringProperty
 import scalafx.beans.property.StringProperty._
-import scalafx.beans.property.ObjectProperty
-import scalafx.beans.property.ObjectProperty._
 import scalafx.geometry.{Insets, Pos}
 import scalafx.stage.Stage
 import scalafx.scene.Scene
