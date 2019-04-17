@@ -74,8 +74,8 @@ object JsonTools {
           for(food <- foods)
           yield {
             val title = Try(food("Name").as[String]).getOrElse("Lunch")
-            val components = for(name <- food("Components").as[List[String]]) yield new Component(name)
-            new Food(title, components)
+            val components = for(name <- food("Components").as[List[String]]) yield Component(name)
+            Food(title, components)
           }
 
         val menus: List[Menu] = 
@@ -107,8 +107,8 @@ object JsonTools {
           yield {
             val title = Try(food("title_en").as[String]).getOrElse("")
             val properties = Try(" ("+food("properties").as[String]+")").getOrElse("")
-            val components = List(new Component(title+properties))
-            new Food("Lunch", components)
+            val components = List(Component(title+properties))
+            Food("Lunch", components)
           }
 
         val menus: List[Menu] = 
