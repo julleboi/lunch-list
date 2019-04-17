@@ -14,8 +14,7 @@ class MenuTest extends FlatSpec {
     dessert
   )
 
-  // copies exFoods list without changing anything
-  def exampleFoods = exFoods.map(f => f.copy(name = f.name))
+  def exampleFoods: List[Food] = exFoods.map(_.copy())
 
   "Component method containsFilteredProps(filteredProps)" should "work correctly" in {
     // Steak lunch is milkfree and glutenfree
