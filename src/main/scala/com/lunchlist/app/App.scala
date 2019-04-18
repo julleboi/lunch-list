@@ -83,7 +83,7 @@ object App {
 
   def main(args: Array[String]): Unit = {
     handleArgs(args)
-    loadMenus(restaurants).foreach(future => Await.result(future, 3 seconds))
+    loadMenus(restaurants).foreach(future => Await.result(future, 20 seconds))
     if(launchGUI)
       LunchListView.start(restaurants)
     else

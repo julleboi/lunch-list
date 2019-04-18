@@ -137,7 +137,7 @@ object JsonTools {
 
         val results: String = 
           futures
-            .map(Await.result(_, 3 seconds))
+            .map(Await.result(_, 5 seconds))
             .collect {
               case Some(res: String) => res
             }
