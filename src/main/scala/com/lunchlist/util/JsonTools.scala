@@ -56,11 +56,14 @@ object JsonTools {
     }
   }
 
-  private def getMenus(restaurant: Restaurant): Unit = restaurant match {
-    case fazer: FazerRestaurant =>
-      loadFazerMenus(restaurant)
-    case sodexo: SodexoRestaurant =>
-      loadSodexoMenus(restaurant)
+  private def getMenus(restaurant: Restaurant): Unit = {
+    println(s"Fetching menu for ${restaurant.name}...")
+    restaurant match {
+      case fazer: FazerRestaurant =>
+        loadFazerMenus(restaurant)
+      case sodexo: SodexoRestaurant =>
+        loadSodexoMenus(restaurant)
+    }
   }
 
   private def loadFazerMenus(restaurant: Restaurant): Unit = {
@@ -140,6 +143,7 @@ object JsonTools {
             .map(Await.result(_, 5 seconds))
             .collect {
               case Some(res: String) => res
+              case None => throw new Exception(s"Couldn't reach url for ${restaurant.name}")
             }
             .mkString(",")
 
