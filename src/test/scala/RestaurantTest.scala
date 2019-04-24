@@ -46,7 +46,7 @@ class RestaurantTest extends FlatSpec {
           cancel
         }
       }
-      cancel
+      case _ => cancel
     }
   }
 
@@ -68,7 +68,7 @@ class RestaurantTest extends FlatSpec {
           cancel
         }
       }
-      cancel
+      case _ => cancel
     }
   }
 
